@@ -6,7 +6,7 @@ from app.core.logger import logger
 from app.crud.funcs import add_user
 from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
-from app.utils import pp
+from app.utils import pp, oferta
 
 router = Router()
 
@@ -29,14 +29,15 @@ async def process_start(message: Message, state: FSMContext):
 async def process_pp(message: Message, state: FSMContext):
     await state.clear()
     pp_text = pp
-    for p in pp:
-        await message.answer(p, parse_mode='HTML')
+    for p in pp_text:
+        await message.answer(p, parse_mode='HTML', disable_web_page_preview=True)
 
 @router.message(Command(commands='oferta'))
 async def process_oferta(message: Message, state: FSMContext):
     await state.clear()
-    oferta_text = None
-    await message.answer(oferta_text, parse_mode='HTML')
+    oferta_text = oferta
+    for p in oferta_text:
+        await message.answer(p, parse_mode='HTML', disable_web_page_preview=True)
 
 @router.message(Command(commands='payment'))
 async def process_paymentinfo(message: Message, state: FSMContext):
