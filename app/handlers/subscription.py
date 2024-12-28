@@ -11,7 +11,4 @@ router = Router()
 @router.callback_query(F.data == 'susbcription')
 async def sub_menu(call: CallbackQuery):
     uid = call.from_user.id
-    async with AsyncSessionLocal() as session:
-
-    sub_status = None
     pass
