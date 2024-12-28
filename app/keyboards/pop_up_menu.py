@@ -14,8 +14,10 @@ async def set_commands_menu(bot):
                    description='Главное меню'),
         BotCommand(command='/privacy_policy',
                    description='Политика конфиденциальности'),
-        BotCommand(command='/contract',
-                   description='Договор оферта')
+        BotCommand(command='/oferta',
+                   description='Договор оферта'),
+        BotCommand(command='/payment',
+                   description='Описание процедуры оплаты')
     ]
 
     await bot.set_my_commands(main_menu_commands)
