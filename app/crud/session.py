@@ -2,10 +2,12 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, async_sessi
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base
 from databases import Database
+from environs import Env
 
+env = Env()
 
 # Стартовая база
-DATABASE_URL = "postgresql+asyncpg://postgres:kwork112233zZ//]@localhost/ynklink_bot"
+DATABASE_URL = env('DB_PATH')
 
 database = Database(DATABASE_URL)
 Base = declarative_base()
