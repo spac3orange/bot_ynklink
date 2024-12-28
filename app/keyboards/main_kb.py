@@ -7,6 +7,7 @@ def start_btns(sub: bool = False):
     if sub:
         kb_builder.button(text='Проверить данные', callback_data='get_data')
         kb_builder.button(text='Внести данные', callback_data='add_data')
+        kb_builder.button(text='Подписка', callback_data='subscription')
     else:
         kb_builder.button(text='Тарифы', callback_data='tarif_info')
     kb_builder.adjust(1)
