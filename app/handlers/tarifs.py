@@ -31,3 +31,10 @@ async def tar_choose(call: CallbackQuery):
     if tarif == 'sale':
         await call.message.answer('Акционный тариф:', reply_markup=main_kb.buy_tarif(tarif))
         pass
+
+@router.callback_query(F.data.startswith('buy_tar_'))
+async def process_buy(call: CallbackQuery):
+    tar_name = call.data.split('_')[-1]
+    await call.answer()
+    print(tar_name)
+    await call.message.answer('В разработке.')
