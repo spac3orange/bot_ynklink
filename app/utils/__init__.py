@@ -1,1 +1,1 @@
-from .documents import privacy_policy, payment, oferta
+from .documents import pp, payment_1, oferta_1, oferta_2

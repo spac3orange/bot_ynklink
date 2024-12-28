@@ -6,7 +6,8 @@ from app.core.logger import logger
 from app.crud.funcs import add_user
 from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
-from app.utils import privacy_policy, payment, oferta
+from app.utils import pp
+
 router = Router()
 
 @router.message(Command(commands='start'))
@@ -27,17 +28,18 @@ async def process_start(message: Message, state: FSMContext):
 @router.message(Command(commands='privacy_policy'))
 async def process_pp(message: Message, state: FSMContext):
     await state.clear()
-    pp_text = privacy_policy
-    await message.answer(pp_text, parse_mode='HTML')
+    pp_text = pp
+    for p in pp:
+        await message.answer(p, parse_mode='HTML')
 
 @router.message(Command(commands='oferta'))
 async def process_oferta(message: Message, state: FSMContext):
     await state.clear()
-    oferta_text = oferta
+    oferta_text = None
     await message.answer(oferta_text, parse_mode='HTML')
 
 @router.message(Command(commands='payment'))
 async def process_paymentinfo(message: Message, state: FSMContext):
     await state.clear()
-    pinfo = payment
+    pinfo = None
     await message.answer(pinfo, parse_mode='HTML')
