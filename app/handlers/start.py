@@ -46,7 +46,8 @@ async def process_paymentinfo(message: Message, state: FSMContext):
     for p in pinfo:
         if p == pinfo[0]:
             caption = 'Оплата банковскими картами осуществляется через Международный сервис платежей Freedom Pay. К оплате принимаются карты VISA и MasterCard.'
-            await message.answer_photo(photo='utils/visa_mc.png', caption=caption, parse_mode='HTML')
+            photo = FSInputFile('utils/visa_mc.png')
+            await message.answer_photo(photo, caption=caption, parse_mode='HTML')
             await message.answer(p, parse_mode='HTML', disable_web_page_preview=True)
         else:
             await message.answer(p, parse_mode='HTML', disable_web_page_preview=True)
