@@ -44,4 +44,9 @@ async def process_paymentinfo(message: Message, state: FSMContext):
     await state.clear()
     pinfo = payment
     for p in pinfo:
-        await message.answer(p, parse_mode='HTML', disable_web_page_preview=True)
+        if p == pinfo[0]:
+            await message.answer_photo(photo='utils/visa_mc.png', caption=p, parse_mode='HTML')
+        else:
+            await message.answer(p, parse_mode='HTML', disable_web_page_preview=True)
+
+
