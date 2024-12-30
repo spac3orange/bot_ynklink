@@ -20,21 +20,14 @@ async def tar_choose(call: CallbackQuery):
     await call.answer()
     tarif = call.data.split('_')[-1]
     if tarif == 'month':
-        await call.message.answer('1 месяц'
-                                  '\n<b>Стоимость:</b> 2.500 тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
-        pass
+        await call.message.answer('\n<b>Стоимость:</b> 2.500 тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'quart':
-        await call.message.answer('3 месяца'
-                                  '\n<b>Стоимость:</b> 7.125 тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
-        pass
+        await call.message.answer('\n<b>Стоимость:</b> 7.125 тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'year':
-        await call.message.answer('12 месяцев'
-                                  '\n<b>Стоимость:</b> 27.000 тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
-        pass
+        await call.message.answer('\n<b>Стоимость:</b> 27.000 тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'sale':
-        await call.message.answer('Акционный тариф:'
-                                  '\n<b>Стоимость:</b> Не указана', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
-        pass
+        await call.message.answer('\n<b>Стоимость:</b> Не указана', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
+
 
 @router.callback_query(F.data.startswith('buy_tar_'))
 async def process_buy(call: CallbackQuery):
