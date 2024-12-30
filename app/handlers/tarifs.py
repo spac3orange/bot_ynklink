@@ -20,16 +20,20 @@ async def tar_choose(call: CallbackQuery):
     await call.answer()
     tarif = call.data.split('_')[-1]
     if tarif == 'month':
-        await call.message.answer('Месячный тариф:', reply_markup=main_kb.buy_tarif(tarif))
+        await call.message.answer('Месячный тариф'
+                                  '\n<b>Стоимость:</b> 2.500 тг.', reply_markup=main_kb.buy_tarif(tarif))
         pass
     if tarif == 'quart':
-        await call.message.answer('Квартальный тариф:', reply_markup=main_kb.buy_tarif(tarif))
+        await call.message.answer('Квартальный тариф'
+                                  '\n<b>Стоимость:</b> 7.125 тг.', reply_markup=main_kb.buy_tarif(tarif))
         pass
     if tarif == 'year':
-        await call.message.answer('Годовой тариф:', reply_markup=main_kb.buy_tarif(tarif))
+        await call.message.answer('Годовой тариф:'
+                                  '\n\n<b>Стоимость:</b> 27.000 тг.', reply_markup=main_kb.buy_tarif(tarif))
         pass
     if tarif == 'sale':
-        await call.message.answer('Акционный тариф:', reply_markup=main_kb.buy_tarif(tarif))
+        await call.message.answer('Акционный тариф:'
+                                  '\n\n<b>Стоимость:</b> Не указана', reply_markup=main_kb.buy_tarif(tarif))
         pass
 
 @router.callback_query(F.data.startswith('buy_tar_'))
