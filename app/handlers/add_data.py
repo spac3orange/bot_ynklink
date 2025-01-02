@@ -8,6 +8,8 @@ from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
 from app.middlewares import album_middleware
 from app.states import states
+from app.core import aiogram_bot
+
 import os
 router = Router()
 router.message.middleware(album_middleware.AlbumMiddleware())
@@ -78,26 +80,13 @@ async def p_doc(message: Message, state: FSMContext, album: list = None):
                 file_id = media_message.document.file_id
                 file_extension = f".{media_message.document.file_name.split('.')[-1]}"
 
-            # Скачиваем файл, если ID найден
-            if file_id and file_extension:
-                file_path = os.path.join(media_folder, f"{file_id}{file_extension}")
-                await media_message.bot.get_file(file_id).download(destination=file_path)
-                saved_files.append(file_path)
+            file_info = await aiogram_bot.get_file(file_id)
+            file_path = file_info.file_path
+            print(file_info, file_path)
 
         await message.answer(f'Спасибо за {len(album)} файла(ов)')
     else:
         await message.answer('Медиа-группа пуста')
-
-    # Сохраняем данные о медиа
-    await state.update_data(media=saved_files)
-
-    # Выводим пути сохраненных файлов
-    for file_path in saved_files:
-        print(f"File saved: {file_path}")
-
-    # Завершаем состояние
-    await state.clear()
-    await message.answer("Файлы сохранены. Спасибо!")
 
     # media = message.text
     # await state.update_data(media=media)
