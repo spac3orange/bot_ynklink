@@ -82,7 +82,7 @@ async def p_doc(message: Message, state: FSMContext, album: list = None):
             # Скачиваем файл
             try:
                 file_info = await media_message.bot.get_file(file_id)
-                unique_name = f"{media_message.from_user.id}_{randint(1000, 9999)}.{file_extension}"
+                unique_name = f"{media_message.from_user.id}_{randint(1000, 9999)}{file_extension}"
                 file_path = os.path.join(media_folder, unique_name)
 
                 await media_message.bot.download_file(file_info.file_path, destination=file_path)
