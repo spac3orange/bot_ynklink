@@ -17,8 +17,8 @@ async def sub_menu(call: CallbackQuery):
         user_sub = user.subscription
     if user_sub:
         answer_str = ('\nПодписка: Активна'
-                      f'\nДата начала подписки: {user_sub.sub_start_date}'
-                      f'\nДата окончания подписки: {user_sub.sub_end_date}')
+                      f'\nДата начала подписки: {user.sub_start_date}'
+                      f'\nДата окончания подписки: {user.sub_end_date}')
     else:
         answer_str = ('\nПодписка: Не активна'
                       f'\nДата начала подписки: Нет'
