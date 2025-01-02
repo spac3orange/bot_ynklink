@@ -8,7 +8,7 @@ from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
 router = Router()
 
-@router.callback_query(F.data == 'susbcription')
+@router.callback_query(F.data == 'subscription')
 async def sub_menu(call: CallbackQuery):
     await call.answer()
     uid = call.from_user.id
