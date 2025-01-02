@@ -6,6 +6,7 @@ from app.core.logger import logger
 from app.crud.funcs import add_user
 from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
+from app.utils import create_payment_page
 router = Router()
 
 @router.callback_query(F.data == 'tarif_info')
@@ -31,7 +32,12 @@ async def tar_choose(call: CallbackQuery):
 
 @router.callback_query(F.data.startswith('buy_tar_'))
 async def process_buy(call: CallbackQuery):
-    tar_name = call.data.split('_')[-1]
     await call.answer()
+    tar_name = call.data.split('_')[-1]
     print(tar_name)
+    price_dict = {'month': 2500, 'quart': 7125, 'year': 27000, 'sale': 100000}
+    ppage = await create_payment_page()
+    print(ppage)
+    price = price_dict[tar_name]
+    print(price)
     await call.message.answer('В разработке.')
