@@ -68,7 +68,6 @@ async def p_doc(message: Message, state: FSMContext, album: list = None):
         for media_message in album:
             file_id = None
             file_extension = None
-
             # Проверяем тип файла и извлекаем его ID
             if media_message.photo:
                 file_id = media_message.photo[-1].file_id
@@ -78,7 +77,6 @@ async def p_doc(message: Message, state: FSMContext, album: list = None):
                 file_extension = ".mp4"
             else:
                 await message.answer('Ошибка')
-
             # Скачиваем файл
             try:
                 file_info = await media_message.bot.get_file(file_id)
@@ -87,14 +85,16 @@ async def p_doc(message: Message, state: FSMContext, album: list = None):
 
                 await media_message.bot.download_file(file_info.file_path, destination=file_path)
                 saved_files.append(file_path)
+                await state.update_data(media=saved_files)
             except Exception as e:
                 print(f"Ошибка при скачивании файла: {e}")
-
-
-        await message.answer(f'Спасибо за {len(album)} файла(ов)')
     else:
         await message.answer('Медиа-группа пуста')
 
+    sdata = await state.get_data()
+    await state.clear()
+    await message.answer('Предпросмотр: ')
+    print(sdata)
     # media = message.text
     # await state.update_data(media=media)
     # data = await state.get_data()
