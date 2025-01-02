@@ -5,7 +5,6 @@ from environs import Env
 
 # Загрузка переменных окружения
 env = Env()
-env.read_env()
 merch_id, merch_api = env('merch_id'), env('merch_api')
 
 def generate_signature(secret_key, params):
