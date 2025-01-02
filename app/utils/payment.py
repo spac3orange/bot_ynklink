@@ -64,6 +64,7 @@ async def create_payment_page():
 
     # Генерация подписи
     secret_key = merch_api
+    print(type(generate_signature(script_name, payment_data, secret_key)))
     payment_data["pg_sig"] = generate_signature(script_name, payment_data, secret_key)
 
     # Асинхронный запрос
