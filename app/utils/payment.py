@@ -1,10 +1,12 @@
 import aiohttp
 import hashlib
 import uuid
+import xml.etree.ElementTree as ET
 from environs import Env
 
 # Загрузка переменных окружения
 env = Env()
+env.read_env()
 merch_id, merch_api = env('MERCH_ID'), env('MERCH_API')
 
 def generate_signature(secret_key, params):
@@ -12,8 +14,13 @@ def generate_signature(secret_key, params):
     sorted_params = sorted(params.items())
     # Формируем строку для подписи
     signature_base = ";".join(f"{k}={v}" for k, v in sorted_params if v) + f";{secret_key}"
-    # Генерируем подпись (MD5)
+    # Генерация подписи (MD5)
     return hashlib.md5(signature_base.encode('utf-8')).hexdigest()
+
+def parse_xml_response(xml_text):
+    """Парсит XML-ответ и возвращает словарь."""
+    root = ET.fromstring(xml_text)
+    return {child.tag: child.text for child in root}
 
 async def create_payment_page():
     # Основные данные платежа
@@ -40,11 +47,13 @@ async def create_payment_page():
             "https://test-api.freedompay.kz/g2g/payment_page", data=payment_data
         ) as response:
             if response.status == 200:
-                result = await response.json()
+                # Обработка XML-ответа
+                xml_text = await response.text()
+                result = parse_xml_response(xml_text)
+
                 if result.get("pg_status") == "Ok":
                     print("URL для оплаты:", result["pg_redirect_url"])
                 else:
                     print("Ошибка:", result.get("pg_error_description"))
             else:
                 print("Ошибка HTTP:", response.status, await response.text())
-
