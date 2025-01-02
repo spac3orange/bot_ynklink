@@ -9,6 +9,7 @@ from app.keyboards import main_kb
 from app.middlewares import album_middleware
 from app.states import states
 from app.core import aiogram_bot
+from random import randint
 
 import os
 router = Router()
@@ -63,7 +64,6 @@ async def p_doc(message: Message, state: FSMContext):
 @router.message(F.media_group_id, states.AddData.media)
 async def p_doc(message: Message, state: FSMContext, album: list = None):
     saved_files = []
-
     if album:
         for media_message in album:
             file_id = None
@@ -76,13 +76,20 @@ async def p_doc(message: Message, state: FSMContext, album: list = None):
             elif media_message.video:
                 file_id = media_message.video.file_id
                 file_extension = ".mp4"
-            elif media_message.document:
-                file_id = media_message.document.file_id
-                file_extension = f".{media_message.document.file_name.split('.')[-1]}"
+            else:
+                await message.answer('Ошибка')
 
-            file_info = await aiogram_bot.get_file(file_id)
-            file_path = file_info.file_path
-            print(file_info, file_path)
+            # Скачиваем файл
+            try:
+                file_info = await media_message.bot.get_file(file_id)
+                unique_name = f"{media_message.from_user.id}_{randint(1000, 9999)}.{file_extension}"
+                file_path = os.path.join(media_folder, unique_name)
+
+                await media_message.bot.download_file(file_info.file_path, destination=file_path)
+                saved_files.append(file_path)
+            except Exception as e:
+                print(f"Ошибка при скачивании файла: {e}")
+
 
         await message.answer(f'Спасибо за {len(album)} файла(ов)')
     else:
