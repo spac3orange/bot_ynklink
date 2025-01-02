@@ -56,9 +56,6 @@ async def create_payment_page():
         "pg_currency": "KZT",       # Валюта
         "pg_salt": uuid.uuid4().hex,  # Случайная строка
         "pg_testing_mode": 1,       # Режим (1 = тестовый)
-        "pg_user_phone": "77777777777",  # Телефон клиента
-        "pg_success_url": "https://example.com/success",  # URL для успешного платежа
-        "pg_failure_url": "https://example.com/failure",  # URL для неуспешного платежа
     }
 
     # Определяем имя вызываемого скрипта
