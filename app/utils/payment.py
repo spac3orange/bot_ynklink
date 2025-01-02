@@ -49,7 +49,7 @@ def parse_xml_response(xml_text):
 async def create_payment_page():
     # Основные данные платежа
     payment_data = {
-        "pg_order_id": "ORDER-001",  # Уникальный ID заказа
+        "pg_order_id": "001",  # Уникальный ID заказа
         "pg_merchant_id": merch_id,   # Ваш ID мерчанта
         "pg_amount": 1000,          # Сумма платежа (например, 1000 = 10.00 KZT)
         "pg_description": "Оплата товара",  # Описание
