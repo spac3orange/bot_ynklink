@@ -8,9 +8,8 @@ from urllib.parse import urlparse
 # Загрузка переменных окружения
 env = Env()
 env.read_env()
-merch_id, merch_api = env.int('MERCH_ID'), env.str('MERCH_API')
-print(merch_id, merch_api)
-print(type(merch_id), type(merch_api))
+merch_id = env.int('MERCH_ID')
+merch_api = env.str('MERCH_API')
 
 
 def generate_signature(script_name, params, secret_key):
