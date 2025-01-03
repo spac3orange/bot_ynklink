@@ -36,16 +36,26 @@ async def process_buy(call: CallbackQuery):
     tar_name = call.data.split('_')[-1]
     print(tar_name)
     price_dict = {'month': 2500, 'quart': 7125, 'year': 27000, 'sale': 100000}
-    pid, ppage = await create_payment_page()
+    pid, ppage = await create_payment_page(price_dict[tar_name])
     if ppage:
-        await call.message.answer(f'Ссылка для оплаты: {ppage}\n\nПосле оплаты, пожалуйста нажмите кнопку ниже для првоерки статуса платежа. Когда платеж будет обработан, вы будете перенаправлены на главную страницу.', reply_markup=main_kb.check_payment(pid))
+        link = f'<a href="{ppage}">Freedom Pay</a>'
+        await call.message.answer(f'Ссылка для оплаты: {link}'
+                                  f'\n\nПосле оплаты, пожалуйста нажмите кнопку ниже для првоерки статуса платежа.'
+                                  f' Когда платеж будет обработан, вы будете перенаправлены на главную страницу.',
+                                  reply_markup=main_kb.check_payment(pid, tar_name))
     else:
         await call.message.answer('Ошибка при создании ссылки на оплату. Пожалуйста, обратитесь в Тех. Поддержку.')
 
 
 @router.callback_query(F.data.startswith('get_pstatus'))
 async def get_pstatus(call: CallbackQuery):
+    await call.answer()
     pid = call.data.split('_')[-1]
-    pstatus = await get_payment_status(pid)
+    tarif = call.data.split('_')[-2]
+    pstatus, tarif = await get_payment_status(pid, tarif)
+    if pstatus in ['new', 'process', 'waiting']:
+        await call.message.answer('Платеж еще обрабатывается')
+    else:
+        pass
     print('Статус платежа:', pstatus)
 

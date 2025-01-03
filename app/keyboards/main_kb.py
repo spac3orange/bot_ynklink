@@ -36,8 +36,8 @@ def data_type():
     kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)
 
-def check_payment(pid):
+def check_payment(pid, tarif):
     kb_builder = InlineKeyboardBuilder()
-    kb_builder.button(text='Проверить статус', callback_data=f'get_pstatus_{pid}')
+    kb_builder.button(text='Проверить статус', callback_data=f'get_pstatus_{tarif}_{pid}')
     kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)

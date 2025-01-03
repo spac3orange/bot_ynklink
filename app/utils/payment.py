@@ -32,12 +32,12 @@ def generate_signature(script_name, data, secret_key):
     return hashlib.md5(concatenated_string.encode('utf-8')).hexdigest()
 
 
-async def create_payment_page():
+async def create_payment_page(amount):
     payment_data = {
         "pg_order_id": "00102",  # Уникальный ID заказа
         "pg_merchant_id": merch_id,  # Ваш ID мерчанта
-        "pg_amount": "1000",  # Сумма платежа (строка)
-        "pg_description": "Ticket",  # Описание
+        "pg_amount": amount,  # Сумма платежа (строка)
+        "pg_description": "Описание",  # Описание
         "pg_salt": uuid.uuid4().hex,  # Случайная строка
         "pg_testing_mode": "1",  # Режим (строка)
     }
@@ -65,7 +65,7 @@ async def create_payment_page():
                 print("Ошибка HTTP:", response.status, await response.text())
 
 
-async def get_payment_status(payment_id):
+async def get_payment_status(payment_id, tarif):
     url = 'https://api.freedompay.kz/get_status3.php'
     script_name = 'get_status3.php'
     pg_salt = uuid.uuid4().hex
@@ -84,7 +84,7 @@ async def get_payment_status(payment_id):
                 xml_text = await response.text()
                 result = parse_xml_response(xml_text)
                 print(result)
-                return result
+                return result['pg_payment_status']
             else:
                 raise ValueError('Ошибка')
             #     if result.get("pg_status") == "ok":
