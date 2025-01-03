@@ -51,12 +51,12 @@ async def create_payment_page():
     # Основные данные платежа
     payment_data = {
         "pg_order_id": "001",  # Уникальный ID заказа
-        "pg_merchant_id": merch_id,   # Ваш ID мерчанта
-        "pg_amount": 1000,          # Сумма платежа (например, 1000 = 10.00 KZT)
-        "pg_description": "Оплата товара",  # Описание
-        "pg_currency": "KZT",       # Валюта
+        "pg_merchant_id": merch_id,  # Ваш ID мерчанта
+        "pg_amount": 1000,  # Сумма платежа (например, 1000 = 10.00 KZT)
+        "pg_description": "Оплата",  # Описание
+        "pg_currency": "KZT",  # Валюта
         "pg_salt": uuid.uuid4().hex,  # Случайная строка
-        "pg_testing_mode": 1,       # Режим (1 = тестовый)
+        "pg_testing_mode": 1,  # Режим (1 = тестовый)
     }
 
     # Определяем имя вызываемого скрипта
@@ -65,8 +65,8 @@ async def create_payment_page():
 
     # Генерация подписи
     secret_key = merch_api
-    print(type(generate_signature(script_name, payment_data, secret_key)))
-    payment_data["pg_sig"] = generate_signature(script_name, payment_data, secret_key)
+    ordered_data = {key: str(payment_data[key]) for key in sorted(payment_data)}
+    payment_data["pg_sig"] = generate_signature(script_name, ordered_data, secret_key)
 
     # Асинхронный запрос
     async with aiohttp.ClientSession() as session:
