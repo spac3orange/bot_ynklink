@@ -55,7 +55,8 @@ async def create_payment_page(amount):
                 # Обработка XML-ответа
                 xml_text = await response.text()
                 result = parse_xml_response(xml_text)
-
+                print(result)
+                return
                 if result.get("pg_status") == "ok":
                     print("URL для оплаты:", result["pg_redirect_url"])
                     return result['pg_payment_id'], result['pg_redirect_url']
