@@ -60,7 +60,7 @@ async def create_payment_page():
     }
 
     # Определяем имя вызываемого скрипта
-    url = "https://test-api.freedompay.kz/g2g/payment_page"
+    url = "https://api.freedompay.kz/init_payment.php"
     script_name = get_script_name(url)
 
     # Генерация подписи
