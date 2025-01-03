@@ -29,7 +29,7 @@ def generate_signature(script_name, data, secret_key):
     # Преобразуем все значения в строки
     data = {key: str(value) for key, value in data.items()}
 
-    # Сортируем данные в алфавитном порядке
+    # Сортируем данные в алфавитном порядке по ключам
     sorted_items = sorted(data.items())
 
     # Конкатенируем имя скрипта, параметры и секретный ключ
@@ -46,7 +46,7 @@ async def create_payment_page():
     # Основные данные платежа
     payment_data = {
         "pg_order_id": "00102",  # Уникальный ID заказа
-        "pg_merchant_id": merch_id,  # Ваш ID мерчанта
+        "pg_merchant_id": 554961,  # Ваш ID мерчанта
         "pg_amount": "1000",  # Сумма платежа (строка)
         "pg_description": "Ticket",  # Описание
         "pg_currency": "KZT",  # Валюта
@@ -59,7 +59,7 @@ async def create_payment_page():
     script_name = get_script_name(url)
 
     # Генерация подписи
-    secret_key = merch_api  # Замените на настоящий секретный ключ
+    secret_key = "your_secret_key_here"  # Замените на настоящий секретный ключ
     signature = generate_signature(script_name, payment_data, secret_key)
     payment_data["pg_sig"] = signature
 
