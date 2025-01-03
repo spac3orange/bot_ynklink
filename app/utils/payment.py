@@ -42,8 +42,8 @@ async def create_payment_page(amount):
         "pg_testing_mode": "1",  # Режим (строка)
     }
 
-    url = "https://test-api.freedompay.kz/g2g/payment_page"
-    script_name = "payment_page"
+    url = "https://api.freedompay.kz/init_payment.php"
+    script_name = "init_payment.php"
     secret_key = merch_api
     signature = generate_signature(script_name, payment_data, secret_key)
     payment_data["pg_sig"] = signature
@@ -55,8 +55,7 @@ async def create_payment_page(amount):
                 # Обработка XML-ответа
                 xml_text = await response.text()
                 result = parse_xml_response(xml_text)
-                print(result)
-                return
+
                 if result.get("pg_status") == "ok":
                     print("URL для оплаты:", result["pg_redirect_url"])
                     return result['pg_payment_id'], result['pg_redirect_url']
