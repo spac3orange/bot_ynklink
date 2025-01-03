@@ -65,7 +65,7 @@ async def create_payment_page(amount):
                 print("Ошибка HTTP:", response.status, await response.text())
 
 
-async def get_payment_status(payment_id, tarif):
+async def get_payment_status(payment_id):
     url = 'https://api.freedompay.kz/get_status3.php'
     script_name = 'get_status3.php'
     pg_salt = uuid.uuid4().hex
