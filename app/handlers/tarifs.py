@@ -42,7 +42,7 @@ async def process_buy(call: CallbackQuery):
         await call.message.answer(f'Ссылка для оплаты: {link}'
                                   f'\n\nПосле оплаты, пожалуйста нажмите кнопку ниже для првоерки статуса платежа.'
                                   f' Когда платеж будет обработан, вы будете перенаправлены на главную страницу.',
-                                  reply_markup=main_kb.check_payment(pid, tar_name))
+                                  reply_markup=main_kb.check_payment(pid, tar_name), parse_mode='HTML')
     else:
         await call.message.answer('Ошибка при создании ссылки на оплату. Пожалуйста, обратитесь в Тех. Поддержку.')
 
