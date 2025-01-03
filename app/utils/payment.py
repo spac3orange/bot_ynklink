@@ -2,8 +2,6 @@ import aiohttp
 import hashlib
 import uuid
 import xml.etree.ElementTree as ET
-
-from databases.backends.aiopg import AiopgBackend
 from environs import Env
 from urllib.parse import urlparse
 import random
