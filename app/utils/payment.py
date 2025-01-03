@@ -21,10 +21,15 @@ def parse_xml_response(xml_text):
 
 
 def generate_signature(script_name, data, secret_key):
+    # Преобразуем все значения в строки
+    data = {key: str(value) for key, value in data.items()}
+
     # Сортируем данные в алфавитном порядке
     sorted_items = sorted(data.items())
+
     # Конкатенируем имя скрипта, параметры и секретный ключ
     concatenated_string = f"{script_name};" + ";".join(f"{key}={value}" for key, value in sorted_items) + f";{secret_key}"
+
     # Генерируем MD5 хэш
     return hashlib.md5(concatenated_string.encode('utf-8')).hexdigest()
 
