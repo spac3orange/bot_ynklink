@@ -42,8 +42,8 @@ async def create_payment_page(amount):
         "pg_testing_mode": "1",  # Режим (строка)
     }
 
-    url = "https://api.freedompay.kz/init_payment.php"
-    script_name = "init_payment.php"
+    url = "https://test-api.freedompay.kz/g2g/payment_page"
+    script_name = "payment_page"
     secret_key = merch_api
     signature = generate_signature(script_name, payment_data, secret_key)
     payment_data["pg_sig"] = signature
