@@ -52,7 +52,7 @@ async def get_pstatus(call: CallbackQuery):
     await call.answer()
     pid = call.data.split('_')[-1]
     tarif = call.data.split('_')[-2]
-    pstatus, tarif = await get_payment_status(pid, tarif)
+    pstatus = await get_payment_status(pid)
     if pstatus in ['new', 'process', 'waiting']:
         await call.message.answer('Платеж еще обрабатывается')
     else:
