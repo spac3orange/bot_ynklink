@@ -6,7 +6,7 @@ from app.core.logger import logger
 from app.crud.funcs import add_user
 from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
-from app.utils import create_payment_page
+from app.utils import create_payment_page, get_payment_status
 router = Router()
 
 @router.callback_query(F.data == 'tarif_info')
@@ -36,8 +36,16 @@ async def process_buy(call: CallbackQuery):
     tar_name = call.data.split('_')[-1]
     print(tar_name)
     price_dict = {'month': 2500, 'quart': 7125, 'year': 27000, 'sale': 100000}
-    ppage = await create_payment_page()
-    print(ppage)
-    price = price_dict[tar_name]
-    print(price)
-    await call.message.answer('В разработке.')
+    pid, ppage = await create_payment_page()
+    if ppage:
+        await call.message.answer(f'Ссылка для оплаты: {ppage}\n\nПосле оплаты, пожалуйста нажмите кнопку ниже для првоерки статуса платежа. Когда платеж будет обработан, вы будете перенаправлены на главную страницу.', reply_markup=main_kb.check_payment(pid))
+    else:
+        await call.message.answer('Ошибка при создании ссылки на оплату. Пожалуйста, обратитесь в Тех. Поддержку.')
+
+
+@router.callback_query(F.data.startswith('get_pstatus'))
+async def get_pstatus(call: CallbackQuery):
+    pid = call.data.split('_')[-1]
+    pstatus = await get_payment_status(pid)
+    print('Статус платежа:', pstatus)
+

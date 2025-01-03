@@ -2,20 +2,20 @@ import aiohttp
 import hashlib
 import uuid
 import xml.etree.ElementTree as ET
+
+from databases.backends.aiopg import AiopgBackend
 from environs import Env
 from urllib.parse import urlparse
 import random
 import string
 
 
-# Загрузка переменных окружения
 env = Env()
 env.read_env()
 merch_id = env.int('MERCH_ID')
 merch_api = env.str('MERCH_API')
 
 def parse_xml_response(xml_text):
-    """Парсит XML-ответ и возвращает словарь."""
     root = ET.fromstring(xml_text)
     return {child.tag: child.text for child in root}
 
@@ -26,27 +26,15 @@ def get_script_name(url):
 
 
 def generate_signature(script_name, data, secret_key):
-    # Преобразуем все значения в строки
     data = {key: str(value) for key, value in data.items()}
-
-    # Сортируем данные в алфавитном порядке по ключам
     sorted_items = sorted(data.items())
-
-    # Получаем только значения, для конкатенации в нужном порядке
     sorted_values = [value for _, value in sorted_items]
-
-    # Конкатенируем имя скрипта, параметры и секретный ключ
     concatenated_string = f"{script_name};" + ";".join(sorted_values) + f";{secret_key}"
-
-    # Отладка: выводим сгенерированную строку
     print("Сгенерированная строка для подписи:", concatenated_string)
-
-    # Генерируем MD5 хэш
     return hashlib.md5(concatenated_string.encode('utf-8')).hexdigest()
 
 
 async def create_payment_page():
-    # Основные данные платежа
     payment_data = {
         "pg_order_id": "00102",  # Уникальный ID заказа
         "pg_merchant_id": merch_id,  # Ваш ID мерчанта
@@ -56,19 +44,13 @@ async def create_payment_page():
         "pg_testing_mode": "1",  # Режим (строка)
     }
 
-    # Определяем имя вызываемого скрипта
-    url = "https://test-api.freedompay.kz/g2g/payment_page"
-    script_name = get_script_name(url)
-
-    # Генерация подписи
-    secret_key = merch_api  # Замените на настоящий секретный ключ
+    url = "https://api.freedompay.kz/init_payment.php"
+    script_name = "init_payment.php"
+    secret_key = merch_api
     signature = generate_signature(script_name, payment_data, secret_key)
     payment_data["pg_sig"] = signature
-
-    # Отладка: проверка данных перед отправкой
     print("Данные для отправки:", payment_data)
 
-    # Асинхронный запрос
     async with aiohttp.ClientSession() as session:
         async with session.post(url, data=payment_data) as response:
             if response.status == 200:
@@ -76,9 +58,42 @@ async def create_payment_page():
                 xml_text = await response.text()
                 result = parse_xml_response(xml_text)
 
-                if result.get("pg_status") == "Ok":
+                if result.get("pg_status") == "ok":
                     print("URL для оплаты:", result["pg_redirect_url"])
+                    return result['pg_payment_id'], result['pg_redirect_url']
                 else:
                     print("Ошибка:", result.get("pg_error_description"))
             else:
                 print("Ошибка HTTP:", response.status, await response.text())
+
+
+
+async def get_payment_status(payment_id):
+    url = 'https://api.freedompay.kz/get_status3.php'
+    script_name = 'get_status3.php'
+    pg_salt = uuid.uuid4().hex
+    data = {
+        "pg_merchant_id": merch_id,
+        "pg_payment_id": payment_id,
+        "pg_salt": pg_salt
+    }
+    secret_key = merch_api
+    pg_sig = generate_signature(script_name, data, secret_key)
+    data["pg_sig"] = pg_sig
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, data=data) as response:
+            if response.status == 200:
+                # Обработка XML-ответа
+                xml_text = await response.text()
+                result = parse_xml_response(xml_text)
+                print(result)
+                return result
+            else:
+                raise ValueError('Ошибка')
+            #     if result.get("pg_status") == "ok":
+            #         print("URL для оплаты:", result["pg_redirect_url"])
+            #         return result['pg_payment_id'], result['pg_redirect_url']
+            #     else:
+            #         print("Ошибка:", result.get("pg_error_description"))
+            # else:
+            #     print("Ошибка HTTP:", response.status, await response.text())
