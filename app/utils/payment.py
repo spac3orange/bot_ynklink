@@ -56,6 +56,9 @@ async def create_payment_page():
     payment_data["pg_sig"] = generate_signature(script_name, payment_data, secret_key)
 
     # Асинхронный запрос
+    print(script_name)
+    print(payment_data)
+    print(secret_key)
     async with aiohttp.ClientSession() as session:
         async with session.post(url, data=payment_data) as response:
             if response.status == 200:
