@@ -33,7 +33,7 @@ def generate_signature(script_name, data, secret_key):
     sorted_items = sorted(data.items())
 
     # Конкатенируем имя скрипта, параметры и секретный ключ
-    concatenated_string = f"{script_name};" + ";".join(f"{key}={value}" for key, value in sorted_items) + f";secret_key={secret_key}"
+    concatenated_string = f"{script_name};" + ";".join(f"{key}={value}" for key, value in sorted_items) + f";secret_key={secret_key};"
 
     # Отладка: выводим сгенерированную строку
     print("Сгенерированная строка для подписи:", concatenated_string)
