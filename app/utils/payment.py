@@ -41,7 +41,7 @@ async def create_payment_page():
         "pg_order_id": "001",  # Уникальный ID заказа
         "pg_merchant_id": merch_id,  # Ваш ID мерчанта
         "pg_amount": "1000",  # Сумма платежа (всегда строка)
-        "pg_description": "Оплата товара",  # Описание
+        "pg_description": "Оплата",  # Описание
         "pg_currency": "KZT",  # Валюта
         "pg_salt": generate_salt(),  # Случайная строка
         "pg_testing_mode": "1",  # Режим (всегда строка)
