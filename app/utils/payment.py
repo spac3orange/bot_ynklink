@@ -20,6 +20,11 @@ def parse_xml_response(xml_text):
     return {child.tag: child.text for child in root}
 
 
+def get_script_name(url):
+    parsed_url = url.split("?")[0]
+    return parsed_url.split("/")[-1]
+
+
 def generate_signature(script_name, data, secret_key):
     # Преобразуем все значения в строки
     data = {key: str(value) for key, value in data.items()}
@@ -30,25 +35,23 @@ def generate_signature(script_name, data, secret_key):
     # Конкатенируем имя скрипта, параметры и секретный ключ
     concatenated_string = f"{script_name};" + ";".join(f"{key}={value}" for key, value in sorted_items) + f";{secret_key}"
 
+    # Отладка: выводим сгенерированную строку
+    print("Сгенерированная строка для подписи:", concatenated_string)
+
     # Генерируем MD5 хэш
     return hashlib.md5(concatenated_string.encode('utf-8')).hexdigest()
 
-def generate_salt():
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
-
-def get_script_name(url):
-    parsed_url = url.split("?")[0]
-    return parsed_url.split("/")[-1]
 
 async def create_payment_page():
     # Основные данные платежа
     payment_data = {
         "pg_order_id": "00102",  # Уникальный ID заказа
-        "pg_merchant_id": merch_id,  # Ваш ID мерчанта
-        "pg_amount": 1000,  # Сумма платежа (всегда строка)
+        "pg_merchant_id": 554961,  # Ваш ID мерчанта
+        "pg_amount": "1000",  # Сумма платежа (строка)
         "pg_description": "Ticket",  # Описание
-        "pg_salt": generate_salt(),  # Случайная строка
-        "pg_testing_mode": "1",  # Режим (всегда строка)
+        "pg_currency": "KZT",  # Валюта
+        "pg_salt": uuid.uuid4().hex,  # Случайная строка
+        "pg_testing_mode": "1",  # Режим (строка)
     }
 
     # Определяем имя вызываемого скрипта
@@ -56,13 +59,14 @@ async def create_payment_page():
     script_name = get_script_name(url)
 
     # Генерация подписи
-    secret_key = merch_api
-    payment_data["pg_sig"] = generate_signature(script_name, payment_data, secret_key)
+    secret_key = "your_secret_key_here"  # Замените на настоящий секретный ключ
+    signature = generate_signature(script_name, payment_data, secret_key)
+    payment_data["pg_sig"] = signature
+
+    # Отладка: проверка данных перед отправкой
+    print("Данные для отправки:", payment_data)
 
     # Асинхронный запрос
-    print(script_name)
-    print(payment_data)
-    print(secret_key)
     async with aiohttp.ClientSession() as session:
         async with session.post(url, data=payment_data) as response:
             if response.status == 200:
