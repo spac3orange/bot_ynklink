@@ -32,8 +32,11 @@ def generate_signature(script_name, data, secret_key):
     # Сортируем данные в алфавитном порядке по ключам
     sorted_items = sorted(data.items())
 
+    # Получаем только значения, для конкатенации в нужном порядке
+    sorted_values = [value for _, value in sorted_items]
+
     # Конкатенируем имя скрипта, параметры и секретный ключ
-    concatenated_string = f"{script_name};" + ";".join(f"{key}={value}" for key, value in sorted_items) + f";secret_key={secret_key};"
+    concatenated_string = f"{script_name};" + ";".join(sorted_values) + f";{secret_key}"
 
     # Отладка: выводим сгенерированную строку
     print("Сгенерированная строка для подписи:", concatenated_string)
@@ -49,7 +52,6 @@ async def create_payment_page():
         "pg_merchant_id": merch_id,  # Ваш ID мерчанта
         "pg_amount": "1000",  # Сумма платежа (строка)
         "pg_description": "Ticket",  # Описание
-        "pg_currency": "KZT",  # Валюта
         "pg_salt": uuid.uuid4().hex,  # Случайная строка
         "pg_testing_mode": "1",  # Режим (строка)
     }
