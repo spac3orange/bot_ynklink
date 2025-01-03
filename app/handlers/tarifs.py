@@ -55,6 +55,8 @@ async def get_pstatus(call: CallbackQuery):
     pstatus = await get_payment_status(pid)
     if pstatus in ['new', 'process', 'waiting']:
         await call.message.answer('Платеж еще обрабатывается')
+    if pstatus == 'error':
+        await call.message.answer('Ошибка при проведении платежа. Пожалуйста, попробуйте позднее.')
     else:
         pass
     print('Статус платежа:', pstatus)
