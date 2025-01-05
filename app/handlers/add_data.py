@@ -117,7 +117,7 @@ async def p_media(message: Message, state: FSMContext, album: list = None):
                              f'\nГород: {sdata['city']}'
                              f'\nНомер документа: {sdata['doc']}'
                              f'\nФамилия и/или имя: {sdata['name']}'
-                             f'\nКомментарий: {sdata['comm']}')
+                             f'\nКомментарий: {sdata['comm']}', reply_markup=main_kb.confirm_data())
     else:
         album_builder = MediaGroupBuilder()
         for m in sdata['media']:
@@ -130,7 +130,7 @@ async def p_media(message: Message, state: FSMContext, album: list = None):
                              f'\nГород: {sdata['city']}'
                              f'\nНомер документа: {sdata['doc']}'
                              f'\nФамилия и/или имя: {sdata['name']}'
-                             f'\nКомментарий: {sdata['comm']}')
+                             f'\nКомментарий: {sdata['comm']}', reply_markup=main_kb.confirm_data())
 
 @router.message(states.AddData.media)
 async def p_nomedia(message: Message, state: FSMContext):
@@ -144,7 +144,7 @@ async def p_nomedia(message: Message, state: FSMContext):
                              f'\nГород: {sdata['city']}'
                              f'\nНомер документа: {sdata['doc']}'
                              f'\nФамилия и/или имя: {sdata['name']}'
-                             f'\nКомментарий: {sdata['comm']}')
+                             f'\nКомментарий: {sdata['comm']}', reply_markup=main_kb.confirm_data())
     else:
         album_builder = MediaGroupBuilder()
         for m in sdata['media']:
@@ -157,4 +157,14 @@ async def p_nomedia(message: Message, state: FSMContext):
                              f'\nГород: {sdata['city']}'
                              f'\nНомер документа: {sdata['doc']}'
                              f'\nФамилия и/или имя: {sdata['name']}'
-                             f'\nКомментарий: {sdata['comm']}')
+                             f'\nКомментарий: {sdata['comm']}', reply_markup=main_kb.confirm_data())
+
+@router.callback_query(F.data == 'edit_data')
+async def p_edit_data(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await add_data(call, state)
+
+@router.callback_query(F.data == 'confirm_data')
+async def p_conf_data(call: CallbackQuery):
+    await call.answer()
+    await call.message.answer('Спасибо! Данные будут отправлены администратору на проверку.')
