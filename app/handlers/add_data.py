@@ -10,10 +10,11 @@ from app.keyboards import main_kb
 from app.middlewares import album_middleware
 from app.states import states
 from app.core import aiogram_bot
+from app.utils import inform_admins
 from random import randint
 import magic
-
 import os
+
 router = Router()
 router.message.middleware(album_middleware.AlbumMiddleware())
 media_folder = 'app/media'
@@ -137,7 +138,6 @@ async def p_nomedia(message: Message, state: FSMContext):
     media = message.text
     await state.update_data(media=media)
     sdata = await state.get_data()
-    await state.clear()
     await message.answer('Предпросмотр: ')
     if sdata['media'].lower() == 'нет':
         await message.answer(f'\nНомер телефона: {sdata['number']}'
@@ -165,6 +165,26 @@ async def p_edit_data(call: CallbackQuery, state: FSMContext):
     await add_data(call, state)
 
 @router.callback_query(F.data == 'confirm_data')
-async def p_conf_data(call: CallbackQuery):
+async def p_conf_data(call: CallbackQuery, state: FSMContext):
     await call.answer()
+    sdata = await state.get_data()
+    await state.clear()
     await call.message.answer('Спасибо! Данные будут отправлены администратору на проверку.')
+    adm_message = (f'\nНомер телефона: {sdata['number']}'
+                     f'\nГород: {sdata['city']}'
+                     f'\nНомер документа: {sdata['doc']}'
+                     f'\nФамилия и/или имя: {sdata['name']}'
+                     f'\nКомментарий: {sdata['comm']}')
+    if isinstance(sdata['media'], list):
+        album_builder = MediaGroupBuilder()
+        for m in sdata['media']:
+            if await is_video(m):
+                album_builder.add_video(media=FSInputFile(m))
+            elif await is_photo(m):
+                album_builder.add_photo(media=FSInputFile(m))
+        album = album_builder
+        await inform_admins(message=adm_message, album_builder=album)
+    else:
+        await inform_admins(message=adm_message)
+
+
