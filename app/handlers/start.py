@@ -6,7 +6,7 @@ from app.core.logger import logger
 from app.crud import funcs
 from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
-from app.utils import pp, oferta, payment
+from app.utils import pp, oferta, payment_info
 
 router = Router()
 
@@ -42,7 +42,7 @@ async def process_oferta(message: Message, state: FSMContext):
 @router.message(Command(commands='payment'))
 async def process_paymentinfo(message: Message, state: FSMContext):
     await state.clear()
-    pinfo = payment
+    pinfo = payment_info
     for p in pinfo:
         if p == pinfo[0]:
             caption = 'Оплата банковскими картами осуществляется через Международный сервис платежей Freedom Pay. К оплате принимаются карты VISA и MasterCard.'
