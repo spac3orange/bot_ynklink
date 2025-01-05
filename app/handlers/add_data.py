@@ -111,7 +111,6 @@ async def p_media(message: Message, state: FSMContext, album: list = None):
         await message.answer('Медиа-группа пуста')
 
     sdata = await state.get_data()
-    await state.clear()
     await message.answer('Предпросмотр: ')
     if isinstance(sdata['media'], str):
         await message.answer(f'\nНомер телефона: {sdata['number']}'
