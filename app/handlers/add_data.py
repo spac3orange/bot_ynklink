@@ -112,7 +112,7 @@ async def p_media(message: Message, state: FSMContext, album: list = None):
     sdata = await state.get_data()
     await state.clear()
     await message.answer('Предпросмотр: ')
-    if len(sdata['media']) <= 5:
+    if isinstance(sdata['media'], str):
         await message.answer(f'\nНомер телефона: {sdata['number']}'
                              f'\nГород: {sdata['city']}'
                              f'\nНомер документа: {sdata['doc']}'
