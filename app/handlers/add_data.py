@@ -1,5 +1,6 @@
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.filters import CommandStart, Command
+from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from app.core.logger import logger
@@ -10,11 +11,27 @@ from app.middlewares import album_middleware
 from app.states import states
 from app.core import aiogram_bot
 from random import randint
+import magic
 
 import os
 router = Router()
 router.message.middleware(album_middleware.AlbumMiddleware())
 media_folder = 'app/media'
+
+async def get_mime_type(file_path):
+    mime = magic.Magic(mime=True)
+    mime_type = mime.from_file(file_path)
+    return mime_type
+
+async def is_video(file_path):
+    mime_type = await get_mime_type(file_path)
+    return mime_type.startswith('video')
+
+
+async def is_photo(file_path):
+    mime_type = await get_mime_type(file_path)
+    return mime_type.startswith('image')
+
 
 @router.callback_query(F.data == 'add_data')
 async def add_data(call: CallbackQuery, state: FSMContext):
@@ -46,7 +63,7 @@ async def p_doc(message: Message, state: FSMContext):
 
 
 @router.message(states.AddData.name)
-async def p_doc(message: Message, state: FSMContext):
+async def p_name(message: Message, state: FSMContext):
     name = message.text
     await state.update_data(name=name)
     await message.answer('Введите комментарий: ')
@@ -54,15 +71,16 @@ async def p_doc(message: Message, state: FSMContext):
 
 
 @router.message(states.AddData.comment)
-async def p_doc(message: Message, state: FSMContext):
+async def p_comm(message: Message, state: FSMContext):
     comment = message.text
     await state.update_data(comm=comment)
-    await message.answer('Загрузите медиа-файлы (до 3-х файлов): ')
+    await message.answer('Загрузите медиа-файлы (до 3-х файлов): '
+                         '\n*Не обязательно, для продолжения введите "Нет"' )
     await state.set_state(states.AddData.media)
 
 
 @router.message(F.media_group_id, states.AddData.media)
-async def p_doc(message: Message, state: FSMContext, album: list = None):
+async def p_media(message: Message, state: FSMContext, album: list = None):
     saved_files = []
     if album:
         for media_message in album:
@@ -94,9 +112,49 @@ async def p_doc(message: Message, state: FSMContext, album: list = None):
     sdata = await state.get_data()
     await state.clear()
     await message.answer('Предпросмотр: ')
-    print(sdata)
-    # media = message.text
-    # await state.update_data(media=media)
-    # data = await state.get_data()
-    # await state.clear()
-    # await message.answer('Предпросмотр: ')
+    if sdata['media'].lower() == 'нет':
+        await message.answer(f'\nНомер телефона: {sdata['number']}'
+                             f'\nГород: {sdata['city']}'
+                             f'\nНомер документа: {sdata['doc']}'
+                             f'\nФамилия и/или имя: {sdata['name']}'
+                             f'\nКомментарий: {sdata['comm']}')
+    else:
+        album_builder = MediaGroupBuilder()
+        for m in sdata['media']:
+            if await is_video(m):
+                album_builder.add_video(media=FSInputFile(m))
+            elif await is_photo(m):
+                album_builder.add_photo(media=FSInputFile(m))
+        await message.answer_media_group(media=album_builder.build())
+        await message.answer(f'\nНомер телефона: {sdata['number']}'
+                             f'\nГород: {sdata['city']}'
+                             f'\nНомер документа: {sdata['doc']}'
+                             f'\nФамилия и/или имя: {sdata['name']}'
+                             f'\nКомментарий: {sdata['comm']}')
+
+@router.message(states.AddData.media)
+async def p_nomedia(message: Message, state: FSMContext):
+    media = message.text
+    await state.update_data(media=media)
+    sdata = await state.get_data()
+    await state.clear()
+    await message.answer('Предпросмотр: ')
+    if sdata['media'].lower() == 'нет':
+        await message.answer(f'\nНомер телефона: {sdata['number']}'
+                             f'\nГород: {sdata['city']}'
+                             f'\nНомер документа: {sdata['doc']}'
+                             f'\nФамилия и/или имя: {sdata['name']}'
+                             f'\nКомментарий: {sdata['comm']}')
+    else:
+        album_builder = MediaGroupBuilder()
+        for m in sdata['media']:
+            if await is_video(m):
+                album_builder.add_video(media=FSInputFile(m))
+            elif await is_photo(m):
+                album_builder.add_photo(media=FSInputFile(m))
+        await message.answer_media_group(media=album_builder.build())
+        await message.answer(f'\nНомер телефона: {sdata['number']}'
+                             f'\nГород: {sdata['city']}'
+                             f'\nНомер документа: {sdata['doc']}'
+                             f'\nФамилия и/или имя: {sdata['name']}'
+                             f'\nКомментарий: {sdata['comm']}')
