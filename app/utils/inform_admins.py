@@ -7,7 +7,7 @@ async def inform_admins(message, album_builder = None):
         for a in config_aiogram.admin_id:
             try:
                 if album_builder:
-                    await aiogram_bot.send_media_group(chat_id=a, media=album_builder)
+                    await aiogram_bot.send_media_group(chat_id=a, media=album_builder.build())
                     await aiogram_bot.send_message(chat_id=a, text=message)
                 else:
                     await aiogram_bot.send_message(chat_id=a, text=message)
@@ -16,7 +16,7 @@ async def inform_admins(message, album_builder = None):
     else:
         try:
             if album_builder:
-                await aiogram_bot.send_media_group(chat_id=config_aiogram.admin_id, media=album_builder)
+                await aiogram_bot.send_media_group(chat_id=config_aiogram.admin_id, media=album_builder.build())
                 await aiogram_bot.send_message(chat_id=config_aiogram.admin_id, text=message)
             else:
                 await aiogram_bot.send_message(chat_id=config_aiogram.admin_id, text=message)
