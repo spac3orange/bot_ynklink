@@ -187,18 +187,8 @@ async def p_nomedia(message: Message, state: FSMContext):
                              f'\nФамилия и/или имя: {sdata['name']}'
                              f'\nКомментарий: {sdata['comm']}', reply_markup=main_kb.confirm_data())
     else:
-        album_builder = MediaGroupBuilder()
-        for m in sdata['media']:
-            if await is_video(m):
-                album_builder.add_video(media=FSInputFile(m))
-            elif await is_photo(m):
-                album_builder.add_photo(media=FSInputFile(m))
-        await message.answer_media_group(media=album_builder.build())
-        await message.answer(f'\nНомер телефона: {sdata['number']}'
-                             f'\nГород: {sdata['city']}'
-                             f'\nНомер документа: {sdata['doc']}'
-                             f'\nФамилия и/или имя: {sdata['name']}'
-                             f'\nКомментарий: {sdata['comm']}', reply_markup=main_kb.confirm_data())
+        await message.answer('Ошибка. Введите "Нет", или загрузите медиа-файлы.')
+        return
 
 
 @router.callback_query(F.data == 'edit_data')
