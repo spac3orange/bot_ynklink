@@ -66,7 +66,7 @@ async def p_input_phone(message: Message, state: FSMContext):
                                      f'\nГород: {d.city}'
                                      f'\nНомер документа: {d.document}'
                                      f'\nФамилия и/или имя: {d.name}'
-                                     f'\nКомментарий: {d.comment}', reply_markup=main_kb.confirm_data())
+                                     f'\nКомментарий: {d.comment}')
             print(extracted_data)
         else:
             await message.answer('Данные не найдены.')
