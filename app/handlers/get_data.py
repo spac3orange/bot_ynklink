@@ -5,14 +5,29 @@ from aiogram.filters import CommandStart, Command
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.util import await_only
-
+from aiogram.utils.media_group import MediaGroupBuilder
 from app.core.logger import logger
 from app.crud import funcs
 from app.crud import AsyncSessionLocal
 from app.states import states
 from app.keyboards import main_kb
+import magic
+
 router = Router()
 
+async def get_mime_type(file_path):
+    mime = magic.Magic(mime=True)
+    mime_type = mime.from_file(file_path)
+    return mime_type
+
+async def is_video(file_path):
+    mime_type = await get_mime_type(file_path)
+    return mime_type.startswith('video')
+
+
+async def is_photo(file_path):
+    mime_type = await get_mime_type(file_path)
+    return mime_type.startswith('image')
 
 @router.callback_query(F.data == 'get_data')
 async def get_data(call: CallbackQuery):
@@ -36,7 +51,17 @@ async def p_input_phone(message: Message, state: FSMContext):
             extracted_data = await funcs.get_user_data_by_number_or_document(session, number=number)
         if extracted_data:
             for d in extracted_data:
-                print(d.media)
+                media = None
+                if isinstance(d.media, list):
+                    album_builder = MediaGroupBuilder()
+                    for m in d.media:
+                        if await is_video(m):
+                            album_builder.add_video(media=FSInputFile(m))
+                        elif await is_photo(m):
+                            album_builder.add_photo(media=FSInputFile(m))
+                    media = album_builder
+                if media:
+                    await message.answer_media_group(media.build())
                 await message.answer(f'\nНомер телефона: {d.number}'
                                      f'\nГород: {d.city}'
                                      f'\nНомер документа: {d.document}'
