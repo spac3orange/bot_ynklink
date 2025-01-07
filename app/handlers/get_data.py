@@ -29,6 +29,28 @@ async def is_photo(file_path):
     mime_type = await get_mime_type(file_path)
     return mime_type.startswith('image')
 
+async def send_data_message(message, extracted_data):
+    if extracted_data:
+        for d in extracted_data:
+            media = None
+            if isinstance(d.media, list):
+                album_builder = MediaGroupBuilder()
+                for m in d.media:
+                    if await is_video(m):
+                        album_builder.add_video(media=FSInputFile(m))
+                    elif await is_photo(m):
+                        album_builder.add_photo(media=FSInputFile(m))
+                media = album_builder
+            if media:
+                await message.answer_media_group(media.build())
+            await message.answer(f'\nНомер телефона: {d.number}'
+                                 f'\nГород: {d.city}'
+                                 f'\nНомер документа: {d.document}'
+                                 f'\nФамилия и/или имя: {d.name}'
+                                 f'\nКомментарий: {d.comment}')
+        print(extracted_data)
+
+
 @router.callback_query(F.data == 'get_data')
 async def get_data(call: CallbackQuery):
     await call.answer()
@@ -50,24 +72,7 @@ async def p_input_phone(message: Message, state: FSMContext):
         async with AsyncSessionLocal() as session:
             extracted_data = await funcs.get_user_data_by_number_or_document(session, number=number)
         if extracted_data:
-            for d in extracted_data:
-                media = None
-                if isinstance(d.media, list):
-                    album_builder = MediaGroupBuilder()
-                    for m in d.media:
-                        if await is_video(m):
-                            album_builder.add_video(media=FSInputFile(m))
-                        elif await is_photo(m):
-                            album_builder.add_photo(media=FSInputFile(m))
-                    media = album_builder
-                if media:
-                    await message.answer_media_group(media.build())
-                await message.answer(f'\nНомер телефона: {d.number}'
-                                     f'\nГород: {d.city}'
-                                     f'\nНомер документа: {d.document}'
-                                     f'\nФамилия и/или имя: {d.name}'
-                                     f'\nКомментарий: {d.comment}')
-            print(extracted_data)
+            await send_data_message(message, extracted_data)
         else:
             await message.answer('Данные не найдены.')
 
@@ -91,7 +96,7 @@ async def p_input_doc(message: Message, state: FSMContext):
         async with AsyncSessionLocal() as session:
             extracted_data = await funcs.get_user_data_by_number_or_document(session, number=number)
         if extracted_data:
-            await message.answer('Данные найдены.')
+            await send_data_message(message, extracted_data)
         else:
             await message.answer('Данные не найдены.')
     else:
