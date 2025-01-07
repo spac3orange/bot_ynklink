@@ -13,7 +13,7 @@ database = Database(DATABASE_URL)
 Base = declarative_base()
 
 # Настроим движок SQLAlchemy для асинхронных операций
-engine = create_async_engine(DATABASE_URL, echo=True, future=True)
+engine = create_async_engine(DATABASE_URL, future=True)
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
