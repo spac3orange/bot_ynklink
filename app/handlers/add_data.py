@@ -4,8 +4,7 @@ from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from app.core.logger import logger
-from app.crud.funcs import add_user
-from app.crud import AsyncSessionLocal
+from app.crud import AsyncSessionLocal, funcs, prepare_jsonb_data
 from app.keyboards import main_kb
 from app.middlewares import album_middleware
 from app.states import states
@@ -32,6 +31,34 @@ async def is_video(file_path):
 async def is_photo(file_path):
     mime_type = await get_mime_type(file_path)
     return mime_type.startswith('image')
+
+
+
+async def send_data(state_data: dict, from_uid: int):
+    uid = from_uid
+    sdata = state_data
+
+    adm_message = (f'\nНомер телефона: {sdata['number']}'
+                   f'\nГород: {sdata['city']}'
+                   f'\nНомер документа: {sdata['doc']}'
+                   f'\nФамилия и/или имя: {sdata['name']}'
+                   f'\nКомментарий: {sdata['comm']}')
+    media_temp = None
+    if isinstance(sdata['media'], list):
+        media_temp = await prepare_jsonb_data(sdata['media'])
+        album_builder = MediaGroupBuilder()
+        for m in sdata['media']:
+            if await is_video(m):
+                album_builder.add_video(media=FSInputFile(m))
+            elif await is_photo(m):
+                album_builder.add_photo(media=FSInputFile(m))
+        album = album_builder
+        await inform_admins(message=adm_message, from_id=uid, album_builder=album)
+    else:
+        await inform_admins(message=adm_message, from_id=uid)
+
+    async with AsyncSessionLocal() as session:
+        await funcs.add_user_data(session, *sdata, media_temp)
 
 
 @router.callback_query(F.data == 'add_data')
@@ -132,6 +159,7 @@ async def p_media(message: Message, state: FSMContext, album: list = None):
                              f'\nФамилия и/или имя: {sdata['name']}'
                              f'\nКомментарий: {sdata['comm']}', reply_markup=main_kb.confirm_data())
 
+
 @router.message(states.AddData.media)
 async def p_nomedia(message: Message, state: FSMContext):
     media = message.text
@@ -158,32 +186,29 @@ async def p_nomedia(message: Message, state: FSMContext):
                              f'\nФамилия и/или имя: {sdata['name']}'
                              f'\nКомментарий: {sdata['comm']}', reply_markup=main_kb.confirm_data())
 
+
 @router.callback_query(F.data == 'edit_data')
 async def p_edit_data(call: CallbackQuery, state: FSMContext):
     await call.answer()
     await add_data(call, state)
 
+
 @router.callback_query(F.data == 'confirm_data')
 async def p_conf_data(call: CallbackQuery, state: FSMContext):
     await call.answer()
     sdata = await state.get_data()
+    uid = call.from_user.id
     await state.clear()
     await call.message.answer('Спасибо! Данные будут отправлены администратору на проверку.')
-    adm_message = (f'\nНомер телефона: {sdata['number']}'
-                     f'\nГород: {sdata['city']}'
-                     f'\nНомер документа: {sdata['doc']}'
-                     f'\nФамилия и/или имя: {sdata['name']}'
-                     f'\nКомментарий: {sdata['comm']}')
-    if isinstance(sdata['media'], list):
-        album_builder = MediaGroupBuilder()
-        for m in sdata['media']:
-            if await is_video(m):
-                album_builder.add_video(media=FSInputFile(m))
-            elif await is_photo(m):
-                album_builder.add_photo(media=FSInputFile(m))
-        album = album_builder
-        await inform_admins(message=adm_message, album_builder=album)
-    else:
-        await inform_admins(message=adm_message)
+    await send_data(sdata, uid)
+
+
+
+
+@router.callback_query(F.data.startswith('adm_confirm_data_'))
+async def adm_confirm_data(call: CallbackQuery):
+    from_uid = call.data.split('_')[-1]
+    await call.answer()
+    await aiogram_bot.send_message(from_uid, 'Спасибо! Данные обновлены.')
 
 

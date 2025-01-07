@@ -48,3 +48,11 @@ def confirm_data():
     kb_builder.button(text='Изменить', callback_data=f'edit_data')
     kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)
+
+
+def admin_confirmation(from_id):
+    kb_builder = InlineKeyboardBuilder()
+    kb_builder.button(text='Подтвердить', callback_data=f'adm_confirm_data_{from_id}')
+    kb_builder.button(text='Отказать', callback_data=f'adm_decline_data_{from_id}')
+    kb_builder.adjust(2)
+    return kb_builder.as_markup(resize_keyboard=True)

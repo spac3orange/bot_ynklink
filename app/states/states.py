@@ -8,3 +8,8 @@ class AddData(StatesGroup):
     name = State()
     comment = State()
     media = State()
+
+
+class GetData(StatesGroup):
+    input_phone = State()
+    input_doc = State()

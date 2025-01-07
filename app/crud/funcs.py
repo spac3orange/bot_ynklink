@@ -1,6 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.crud.models import User
+from app.crud.models import User, UserData
+from app.core import logger
 from sqlalchemy.future import select
+from typing import Optional, List, Union
 
 
 async def add_user(session: AsyncSession,
@@ -59,3 +61,46 @@ async def update_subscription(
     await session.refresh(user)  # Обновляем объект
 
     return user
+
+
+async def add_user_data(
+    session: AsyncSession,
+    user_id: int,
+    number: Optional[int] = None,
+    city: Optional[str] = None,
+    document: Optional[int] = None,
+    name: Optional[str] = None,
+    comment: Optional[str] = None,
+    media: Optional[List[Union[str, dict]]] = None
+):
+    """
+    Добавляет новую запись в таблицу UserData.
+
+    :param session: Сессия SQLAlchemy для работы с базой данных.
+    :param user_id: ID пользователя (Telegram user_id).
+    :param number: Номер пользователя или иной идентификатор.
+    :param city: Город пользователя.
+    :param document: Идентификатор документа.
+    :param name: Имя пользователя.
+    :param comment: Комментарий.
+    :param media: Медиафайлы в формате списка (строки или словари).
+    """
+    try:
+        # Создаём новую запись
+        new_record = UserData(
+            id=user_id,
+            number=number,
+            city=city,
+            document=document,
+            name=name,
+            comment=comment,
+            media=media if media else []  # Если media не передано, записываем пустой список
+        )
+        # Добавляем запись в сессию
+        session.add(new_record)
+        # Сохраняем изменения
+        await session.commit()
+        logger.info('users data updated')
+
+    except Exception as e:
+        await session.rollback()
