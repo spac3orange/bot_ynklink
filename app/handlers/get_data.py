@@ -35,7 +35,13 @@ async def p_input_phone(message: Message, state: FSMContext):
         async with AsyncSessionLocal() as session:
             extracted_data = await funcs.get_user_data_by_number_or_document(session, number=number)
         if extracted_data:
-            await message.answer('Данные найдены.')
+            for d in extracted_data:
+                print(d.media)
+                await message.answer(f'\nНомер телефона: {d.number}'
+                                     f'\nГород: {d.city}'
+                                     f'\nНомер документа: {d.document}'
+                                     f'\nФамилия и/или имя: {d.name}'
+                                     f'\nКомментарий: {d.comm}', reply_markup=main_kb.confirm_data())
             print(extracted_data)
         else:
             await message.answer('Данные не найдены.')
