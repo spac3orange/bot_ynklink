@@ -58,7 +58,7 @@ async def send_data(state_data: dict, from_uid: int):
         await inform_admins(message=adm_message, from_id=uid)
 
     async with AsyncSessionLocal() as session:
-        await funcs.add_user_data(
+        await funcs.add_temp_user_data(
             session=session,
             user_id=uid,
             number=sdata.get("number"),
