@@ -58,7 +58,16 @@ async def send_data(state_data: dict, from_uid: int):
         await inform_admins(message=adm_message, from_id=uid)
 
     async with AsyncSessionLocal() as session:
-        await funcs.add_user_data(session, *sdata, media_temp)
+        await funcs.add_user_data(
+            session=session,
+            user_id=uid,
+            number=sdata.get("number"),
+            city=sdata.get("city"),
+            document=sdata.get("doc"),
+            name=sdata.get("name"),
+            comment=sdata.get("comm"),
+            media=media_temp
+        )
 
 
 @router.callback_query(F.data == 'add_data')
