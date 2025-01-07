@@ -13,6 +13,7 @@ from app.states import states
 from app.keyboards import main_kb
 router = Router()
 
+
 @router.callback_query(F.data == 'get_data')
 async def get_data(call: CallbackQuery):
     await call.answer()
@@ -25,6 +26,7 @@ async def get_data_byphone(call: CallbackQuery, state: FSMContext):
     await call.message.answer('Введите номер телефона:')
     await state.set_state(states.GetData.input_phone)
 
+
 @router.message(states.GetData.input_phone)
 async def p_input_phone(message: Message, state: FSMContext):
     number = message.text
@@ -34,6 +36,7 @@ async def p_input_phone(message: Message, state: FSMContext):
             extracted_data = await funcs.get_user_data_by_number_or_document(session, number=number)
         if extracted_data:
             await message.answer('Данные найдены.')
+            print(extracted_data)
         else:
             await message.answer('Данные не найдены.')
 
