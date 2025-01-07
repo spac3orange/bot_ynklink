@@ -4,7 +4,7 @@ from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from pydantic import with_config
-
+import mimetypes
 from app.core.logger import logger
 from app.crud import AsyncSessionLocal, funcs, prepare_jsonb_data
 from app.keyboards import main_kb
@@ -130,15 +130,16 @@ async def p_media(message: Message, state: FSMContext, album: list = None):
             # Проверяем тип файла и извлекаем его ID
             if media_message.photo:
                 file_id = media_message.photo[-1].file_id
-                file_extension = ".jpg"
             elif media_message.video:
                 file_id = media_message.video.file_id
-                file_extension = ".mp4"
             else:
-                await message.answer('Ошибка')
+                await message.answer('Ошибка. Пожалуйста загрузите фото или видео файлы.')
+                return
             # Скачиваем файл
             try:
                 file_info = await media_message.bot.get_file(file_id)
+                mime_type = file_info.mime_type
+                file_extension = mimetypes.guess_extension(mime_type)
                 unique_name = f"{media_message.from_user.id}_{randint(1000, 9999)}{file_extension}"
                 file_path = os.path.join(media_folder, unique_name)
 
