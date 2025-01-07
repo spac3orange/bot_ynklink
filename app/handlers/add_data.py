@@ -45,7 +45,7 @@ async def send_data(state_data: dict, from_uid: int):
                    f'\nКомментарий: {sdata['comm']}')
     media_temp = None
     if isinstance(sdata['media'], list):
-        media_temp = await prepare_jsonb_data(sdata['media'])
+        media_temp = prepare_jsonb_data(sdata['media'])
         album_builder = MediaGroupBuilder()
         for m in sdata['media']:
             if await is_video(m):
