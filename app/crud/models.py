@@ -39,7 +39,7 @@ class UserData(Base):
 
     record_id = Column(Integer, primary_key=True, autoincrement=True)
     id = Column(BigInteger, index=True)
-    number = Column(BigInteger, index=True)
+    number = Column(String, index=True)
     city = Column(String)
     document = Column(BigInteger, index=True)
     name = Column(String)
@@ -52,7 +52,7 @@ class TempData(Base):
 
     record_id = Column(Integer, primary_key=True, autoincrement=True)
     id = Column(BigInteger, index=True)
-    number = Column(BigInteger, index=True)
+    number = Column(String, index=True)
     city = Column(String)
     document = Column(BigInteger, index=True)
     name = Column(String)
