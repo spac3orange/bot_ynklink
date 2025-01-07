@@ -124,6 +124,7 @@ async def p_media(message: Message, state: FSMContext, album: list = None):
     if album:
         if len(album) > 3:
             await message.answer('Вы можете загрузить максимум 3 медиа файла!')
+            return
         for media_message in album:
             file_id = None
             file_extension = None
@@ -138,8 +139,8 @@ async def p_media(message: Message, state: FSMContext, album: list = None):
             # Скачиваем файл
             try:
                 file_info = await media_message.bot.get_file(file_id)
-                mime_type = file_info.mime_type
-                file_extension = mimetypes.guess_extension(mime_type)
+                file_path = file_info.file_path
+                file_extension = os.path.splitext(file_path)[-1]  # Извлекаем расширение из пути
                 unique_name = f"{media_message.from_user.id}_{randint(1000, 9999)}{file_extension}"
                 file_path = os.path.join(media_folder, unique_name)
 
