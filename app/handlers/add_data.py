@@ -179,8 +179,8 @@ async def p_nomedia(message: Message, state: FSMContext):
     media = message.text
     await state.update_data(media=media)
     sdata = await state.get_data()
-    await message.answer('Предпросмотр: ')
     if sdata['media'].lower() == 'нет':
+        await message.answer('Предпросмотр: ')
         await message.answer(f'\nНомер телефона: {sdata['number']}'
                              f'\nГород: {sdata['city']}'
                              f'\nНомер документа: {sdata['doc']}'
