@@ -187,7 +187,7 @@ async def p_nomedia(message: Message, state: FSMContext):
                              f'\nФамилия и/или имя: {sdata['name']}'
                              f'\nКомментарий: {sdata['comm']}', reply_markup=main_kb.confirm_data())
     else:
-        await message.answer('Ошибка. Введите "Нет", или загрузите медиа-файлы.')
+        await message.answer('Ошибка. Введите "Нет", или загрузите медиа-файлы.\nОтменить /cancel')
         return
 
 
