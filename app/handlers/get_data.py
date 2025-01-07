@@ -31,7 +31,7 @@ async def p_input_phone(message: Message, state: FSMContext):
     await state.clear()
     if isdigit(number):
         async with AsyncSessionLocal() as session:
-            extracted_data = funcs.get_user_data_by_number_or_document(session, number=number)
+            extracted_data = await funcs.get_user_data_by_number_or_document(session, number=number)
         if extracted_data:
             await message.answer('Данные найдены.')
         else:
@@ -55,7 +55,7 @@ async def p_input_doc(message: Message, state: FSMContext):
     await state.clear()
     if isdigit(number):
         async with AsyncSessionLocal() as session:
-            extracted_data = funcs.get_user_data_by_number_or_document(session, number=number)
+            extracted_data = await funcs.get_user_data_by_number_or_document(session, number=number)
         if extracted_data:
             await message.answer('Данные найдены.')
         else:
