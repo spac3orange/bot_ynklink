@@ -3,6 +3,8 @@ from aiogram.filters import CommandStart, Command
 from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
+from pydantic import with_config
+
 from app.core.logger import logger
 from app.crud import AsyncSessionLocal, funcs, prepare_jsonb_data
 from app.keyboards import main_kb
@@ -44,6 +46,7 @@ async def send_data(state_data: dict, from_uid: int):
                    f'\nФамилия и/или имя: {sdata['name']}'
                    f'\nКомментарий: {sdata['comm']}')
     media_temp = None
+    album_builder = None
     if isinstance(sdata['media'], list):
         media_temp = prepare_jsonb_data(sdata['media'])
         album_builder = MediaGroupBuilder()
@@ -52,13 +55,8 @@ async def send_data(state_data: dict, from_uid: int):
                 album_builder.add_video(media=FSInputFile(m))
             elif await is_photo(m):
                 album_builder.add_photo(media=FSInputFile(m))
-        album = album_builder
-        await inform_admins(message=adm_message, from_id=uid, album_builder=album)
-    else:
-        await inform_admins(message=adm_message, from_id=uid)
-
     async with AsyncSessionLocal() as session:
-        await funcs.add_temp_user_data(
+        record_id = await funcs.add_temp_user_data(
             session=session,
             user_id=uid,
             number=sdata.get("number"),
@@ -68,6 +66,10 @@ async def send_data(state_data: dict, from_uid: int):
             comment=sdata.get("comm"),
             media=media_temp
         )
+    await inform_admins(message=adm_message, from_id=uid, album_builder=album_builder, record_id=record_id)
+
+
+
 
 
 @router.callback_query(F.data == 'add_data')
@@ -120,6 +122,8 @@ async def p_comm(message: Message, state: FSMContext):
 async def p_media(message: Message, state: FSMContext, album: list = None):
     saved_files = []
     if album:
+        if len(album) > 3:
+            await message.answer('Вы можете загрузить максимум 3 медиа файла!')
         for media_message in album:
             file_id = None
             file_extension = None
@@ -216,8 +220,18 @@ async def p_conf_data(call: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith('adm_confirm_data_'))
 async def adm_confirm_data(call: CallbackQuery):
-    from_uid = call.data.split('_')[-1]
+    from_uid = call.data.split('_')[-2]
+    record_id = int(call.data.split('_')[-1])
     await call.answer()
     await aiogram_bot.send_message(from_uid, 'Спасибо! Данные обновлены.')
+    await call.message.answer('Данные сохранены. Пользователь получит уведомление.')
+    async with AsyncSessionLocal() as session:
+        await funcs.transfer_temp_to_user_data(session, record_id)
 
 
+@router.callback_query(F.data.startswith('adm_decline_data_'))
+async def adm_decline_data(call: CallbackQuery):
+    from_uid = call.data.split('_')[-2]
+    record_id = int(call.data.split('_')[-1])
+    await call.answer()
+    await aiogram_bot.send_message(from_uid, 'Администратор отклонил ваши данные.')
