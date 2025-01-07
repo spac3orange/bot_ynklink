@@ -185,3 +185,41 @@ async def transfer_temp_to_user_data(
         logger.error(f"Failed to transfer record_id: {record_id} from TempData to UserData. Error: {e}")
         await session.rollback()
         raise
+
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from typing import Optional, List
+from app.crud.models import UserData
+from app.core import logger
+
+
+async def get_user_data_by_number_or_document(
+    session: AsyncSession,
+    number: Optional[str] = None,
+    document: Optional[str] = None
+) -> List[UserData]:
+    if not number and not document:
+        logger.error("Either number or document must be provided.")
+        raise ValueError("Either number or document must be provided.")
+
+    try:
+        stmt = select(UserData)
+        if number:
+            stmt = stmt.filter_by(number=number)
+        elif document:
+            stmt = stmt.filter_by(document=document)
+
+        result = await session.execute(stmt)
+        user_data = list(result.scalars().all())
+
+        if user_data:
+            logger.info(f"Found {len(user_data)} records matching the given criteria.")
+        else:
+            logger.info("No records found matching the given criteria.")
+
+        return user_data
+
+    except Exception as e:
+        logger.error(f"Error retrieving data from users_data table: {e}")
+        raise

@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from sqlalchemy.util import await_only
 
 from app.core.logger import logger
-from app.crud.funcs import add_user
+from app.crud import funcs
 from app.crud import AsyncSessionLocal
 from app.states import states
 from app.keyboards import main_kb
@@ -30,7 +30,13 @@ async def p_input_phone(message: Message, state: FSMContext):
     number = message.text
     await state.clear()
     if isdigit(number):
-        pass
+        async with AsyncSessionLocal() as session:
+            extracted_data = funcs.get_user_data_by_number_or_document(session, number=number)
+        if extracted_data:
+            await message.answer('Данные найдены.')
+        else:
+            await message.answer('Данные не найдены.')
+
     else:
         await message.answer('Ошибка. Номер телефона должен состоять из цифр.')
 
@@ -48,6 +54,11 @@ async def p_input_doc(message: Message, state: FSMContext):
     number = message.text
     await state.clear()
     if isdigit(number):
-        pass
+        async with AsyncSessionLocal() as session:
+            extracted_data = funcs.get_user_data_by_number_or_document(session, number=number)
+        if extracted_data:
+            await message.answer('Данные найдены.')
+        else:
+            await message.answer('Данные не найдены.')
     else:
         await message.answer('Ошибка. Номер документа должен состоять из цифр.')

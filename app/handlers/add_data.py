@@ -123,7 +123,7 @@ async def p_media(message: Message, state: FSMContext, album: list = None):
     saved_files = []
     if album:
         if len(album) > 3:
-            await message.answer('Вы можете загрузить максимум 3 медиа файла!')
+            await message.answer('Вы можете загрузить максимум 3 медиа файла! Попробуйте еще раз, или напишите "Нет"')
             return
         for media_message in album:
             file_id = None
