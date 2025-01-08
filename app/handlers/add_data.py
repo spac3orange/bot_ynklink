@@ -14,7 +14,7 @@ import magic
 import os
 
 router = Router()
-router.message.filter(IsSub())
+router.message.filter(IsSub(F))
 router.message.middleware(album_middleware.AlbumMiddleware())
 
 media_folder = 'app/media'

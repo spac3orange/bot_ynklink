@@ -9,6 +9,9 @@ from app.crud import funcs  # Импортируем ваши функции д�
 
 
 class IsSub(BaseFilter):
+    def __init__(self, f):
+        self.f = f
+
     async def __call__(self, message: Message) -> bool:
         print(123456)
         user_id = str(message.from_user.id)  # Получаем ID пользователя из сообщения
