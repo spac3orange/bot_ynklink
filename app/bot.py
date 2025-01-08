@@ -25,9 +25,9 @@ async def start_params() -> None:
     await initialize_database(engine)
 
     # инициализация планировщика
-
     scheduler = Scheduler()
     await scheduler.schedule_subscription_check()
+
     # Пропускаем накопившиеся апдейты и запускаем polling
     await aiogram_bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(aiogram_bot)

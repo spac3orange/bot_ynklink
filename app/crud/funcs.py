@@ -5,6 +5,7 @@ from typing import Optional, List, Union
 from sqlalchemy.orm.exc import NoResultFound
 from datetime import datetime, timedelta
 from sqlalchemy.future import select
+from sqlalchemy.sql.expression import update
 
 async def add_user(session: AsyncSession, user_id: int, user_name: str) -> User:
     logger.info(f"Attempting to add or retrieve user with ID: {user_id}")
@@ -237,3 +238,70 @@ async def get_users_with_expiring_subscriptions(session: AsyncSession):
                 expiring_users.append(user)
 
     return expiring_users
+
+
+async def get_users_with_expired_subscriptions(session: AsyncSession):
+    # Определяем текущую дату
+    now = datetime.now()
+
+    # Выполняем запрос к таблице пользователей
+    result = await session.execute(select(User))
+    users = result.scalars().all()
+
+    # Отбираем пользователей с истекшей подпиской
+    expired_users = []
+    for user in users:
+        if user.sub_end_date:  # Проверяем, указана ли дата окончания подписки
+            sub_end_date = datetime.strptime(user.sub_end_date, "%d-%m-%Y %H:%M:%S")
+            if sub_end_date < now:  # Если дата окончания подписки раньше текущей даты
+                expired_users.append(user)
+
+    return expired_users
+
+
+async def reset_subscription_for_user(session: AsyncSession, user_id: int):
+    logger.info(f"Resetting subscription for user ID: {user_id}")
+
+    try:
+        # Fetch the user from the database
+        stmt = select(User).filter_by(id=user_id)
+        result = await session.execute(stmt)
+        user = result.scalars().first()
+
+        if user is None:
+            logger.error(f"User with ID: {user_id} not found for subscription reset")
+            raise ValueError(f"User with ID: {user_id} not found.")
+
+        # Reset subscription fields
+        user.subscription = None
+        user.sub_start_date = None
+        user.sub_end_date = None
+
+        await session.commit()  # Save changes to the database
+        await session.refresh(user)  # Refresh the object
+
+        logger.info(f"Subscription reset for user ID: {user_id}")
+        return user
+
+    except Exception as e:
+        logger.error(f"Failed to reset subscription for user ID: {user_id}. Error: {e}")
+        await session.rollback()  # Rollback in case of error
+        raise
+
+
+async def get_active_users(session: AsyncSession):
+    try:
+        stmt = (
+            select(UserData)
+            .filter(UserData.subscription.isnot(None))  # Subscription is not None
+            .filter(UserData.subscription.isnot('blocked'))  # Subscription is not 'blocked'
+        )
+
+        result = await session.execute(stmt)
+        users = result.scalars().all()
+
+        return users
+
+    except Exception as e:
+        logger.error(f"Failed to retrieve active users: {e}")
+        raise
