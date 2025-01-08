@@ -37,6 +37,7 @@ async def send_data_message(message, extracted_data):
             if isinstance(d.media, list):
                 media = MediaGroupBuilder()
                 for m in d.media:
+                    print('m', m)
                     if await is_video(m):
                         media.add_video(media=FSInputFile(m))
                     elif await is_photo(m):
