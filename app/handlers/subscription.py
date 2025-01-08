@@ -6,6 +6,7 @@ from app.core.logger import logger
 from app.crud import funcs
 from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
+from app.filters import IsSub
 router = Router()
 
 @router.callback_query(F.data == 'subscription')

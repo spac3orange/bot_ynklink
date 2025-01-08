@@ -12,12 +12,15 @@ from app.middlewares import album_middleware
 from app.states import states
 from app.core import aiogram_bot
 from app.utils import inform_admins
+from app.filters import IsSub
 from random import randint
 import magic
 import os
 
 router = Router()
 router.message.middleware(album_middleware.AlbumMiddleware())
+router.message.filter(IsSub())
+
 media_folder = 'app/media'
 
 async def get_mime_type(file_path):

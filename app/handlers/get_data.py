@@ -12,9 +12,11 @@ from app.crud import funcs
 from app.crud import AsyncSessionLocal
 from app.states import states
 from app.keyboards import main_kb
+from app.filters import IsSub
 import magic
 
 router = Router()
+router.message.filter(IsSub())
 
 async def get_mime_type(file_path):
     mime = magic.Magic(mime=True)
