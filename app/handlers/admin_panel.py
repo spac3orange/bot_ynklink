@@ -21,4 +21,4 @@ router.message.filter(
 @router.callback_query(F.data == 'admin_panel')
 async def p_admp(call: CallbackQuery):
     await call.answer()
-    await call.message.answer('Панель администратора')
+    await call.message.answer('Панель администратора', reply_markup=main_kb.admin_panel())
