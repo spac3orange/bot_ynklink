@@ -58,3 +58,10 @@ class TempData(Base):
     name = Column(String)
     comment = Column(String, default=None)
     media = Column(JSONB, default=[])
+
+
+class Tarifs(Base):
+    __tablename__ = 'tarifs'
+
+    record_id = Column(Integer, primary_key=True, autoincrement=True)
+    price = Column(Integer)

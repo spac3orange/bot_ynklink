@@ -41,23 +41,33 @@ async def tar_menu(call: CallbackQuery):
 async def tar_choose(call: CallbackQuery):
     await call.answer()
     tarif = call.data.split('_')[-1]
+    async with AsyncSessionLocal() as session:
+        tarif_list = await funcs.get_all_tarifs(session)
+    tarif_dict = {'month': tarif_list[0].price,
+                  'quart': tarif_list[1].price,
+                  'year': tarif_list[2].price,
+                  'sale': tarif_list[3].price}
     if tarif == 'month':
-        await call.message.answer('\n<b>Стоимость:</b> 2.500 тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
+        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['month']} тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'quart':
-        await call.message.answer('\n<b>Стоимость:</b> 7.125 тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
+        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['quart']} тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'year':
-        await call.message.answer('\n<b>Стоимость:</b> 27.000 тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
+        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['year']} тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'sale':
-        await call.message.answer('\n<b>Стоимость:</b> Не указана', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
+        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['month']} тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
 
 
 @router.callback_query(F.data.startswith('buy_tar_'))
 async def process_buy(call: CallbackQuery):
     await call.answer()
     tar_name = call.data.split('_')[-1]
-    print(tar_name)
-    price_dict = {'month': 2500, 'quart': 7125, 'year': 27000, 'sale': 100000}
-    pid, ppage = await create_payment_page(price_dict[tar_name])
+    async with AsyncSessionLocal() as session:
+        tarif_list = await funcs.get_all_tarifs(session)
+    tarif_dict = {'month': tarif_list[0].price,
+                  'quart': tarif_list[1].price,
+                  'year': tarif_list[2].price,
+                  'sale': tarif_list[3].price}
+    pid, ppage = await create_payment_page(tarif_dict[tar_name])
     if ppage:
         link = f'<a href="{ppage}">Freedom Pay</a>'
         await call.message.answer(f'Ссылка для оплаты: {link}'

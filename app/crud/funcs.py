@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.crud.models import User, UserData, TempData
+from app.crud.models import User, UserData, TempData, Tarifs
 from app.core import logger
 from typing import Optional, List, Union
 from sqlalchemy.orm.exc import NoResultFound
@@ -319,4 +319,25 @@ async def get_active_users(session: AsyncSession):
 
     except Exception as e:
         logger.error(f"Failed to retrieve active users: {e}")
+        raise
+
+
+async def get_all_tarifs(session: AsyncSession):
+    """
+    Получает все записи из таблицы 'tarifs'.
+
+    :param session: Асинхронная сессия SQLAlchemy.
+    :return: Список объектов Tarifs.
+    """
+    try:
+        # Формируем запрос для получения всех записей
+        stmt = select(Tarifs)
+        result = await session.execute(stmt)  # Выполняем запрос
+        tarifs = result.scalars().all()  # Получаем все строки как объекты Tarifs
+
+        return tarifs
+
+    except Exception as e:
+        # Логируем ошибку
+        logger.error(f"Failed to retrieve tarifs: {e}")
         raise
