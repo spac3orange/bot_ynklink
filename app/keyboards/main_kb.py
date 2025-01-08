@@ -2,12 +2,17 @@ from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton, InlineKe
 from app.core import config_aiogram
 
 
-def start_btns(sub: bool = False):
+def start_btns(sub: bool = False, admin = False):
     kb_builder = InlineKeyboardBuilder()
     if sub:
         kb_builder.button(text='Проверить данные', callback_data='get_data')
         kb_builder.button(text='Внести данные', callback_data='add_data')
         kb_builder.button(text='Подписка', callback_data='subscription')
+    if admin:
+        kb_builder.button(text='Проверить данные', callback_data='get_data')
+        kb_builder.button(text='Внести данные', callback_data='add_data')
+        kb_builder.button(text='Подписка', callback_data='subscription')
+        kb_builder.button(text='Панель администратора', callback_data='admin_panel')
     else:
         kb_builder.button(text='Тарифы', callback_data='tarif_info')
     kb_builder.adjust(1)
