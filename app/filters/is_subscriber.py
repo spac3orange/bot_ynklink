@@ -19,4 +19,5 @@ class IsSub(BaseFilter):
         sub_list = [str(user.id) for user in active_users]
 
         # Проверяем, есть ли ID пользователя в списке активных подписчиков
+        print(type(user_id), print(sub_list))
         return user_id in sub_list
