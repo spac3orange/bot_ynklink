@@ -2,7 +2,7 @@ from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.filters import CommandStart, Command
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-from app.core.logger import logger
+from app.core import logger, config_aiogram
 from app.crud import funcs
 from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
@@ -21,6 +21,8 @@ async def process_start(message: Message, state: FSMContext):
         user_sub = user.subscription
     if user_sub:
         await message.answer('Добро пожаловать', reply_markup=main_kb.start_btns(True))
+    elif str(uid) in config_aiogram.admin_id:
+        await message.answer('Добро пожаловать', reply_markup=main_kb.start_btns(True, admin=True))
     else:
         await message.answer('Вы не подписаны.', reply_markup=main_kb.start_btns(False))
 
