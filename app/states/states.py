@@ -13,3 +13,6 @@ class AddData(StatesGroup):
 class GetData(StatesGroup):
     input_phone = State()
     input_doc = State()
+
+class AdmSend(StatesGroup):
+    text = State()

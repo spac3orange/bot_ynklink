@@ -7,6 +7,21 @@ from datetime import datetime, timedelta
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import update
 
+async def get_all_users(session: AsyncSession):
+    try:
+        # Формируем запрос для получения всех пользователей
+        stmt = select(User)  # Запрос для выборки всех пользователей
+        result = await session.execute(stmt)  # Выполняем запрос
+        users = result.scalars().all()  # Получаем все результаты (список объектов User)
+
+        return users
+
+    except Exception as e:
+        # Логирование ошибки
+        logger.error(f"Failed to retrieve users: {e}")
+        raise
+
+
 async def add_user(session: AsyncSession, user_id: int, user_name: str) -> User:
     logger.info(f"Attempting to add or retrieve user with ID: {user_id}")
     try:
