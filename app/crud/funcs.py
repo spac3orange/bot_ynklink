@@ -294,7 +294,7 @@ async def get_active_users(session: AsyncSession):
         stmt = (
             select(User)
             .filter(User.subscription.isnot(None))  # Subscription is not None
-            .filter(User.subscription.isnot('blocked'))  # Subscription is not 'blocked'
+            .filter(User.subscription != 'blocked')  # Subscription is not 'blocked'
         )
 
         result = await session.execute(stmt)
