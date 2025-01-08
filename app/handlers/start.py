@@ -23,7 +23,7 @@ async def process_start(message: Message, state: FSMContext):
     print(uid, config_aiogram.admin_id)
     if user_sub:
         await message.answer('Добро пожаловать', reply_markup=main_kb.start_btns(True))
-    elif str(uid) == config_aiogram.admin_id:
+    elif str(uid) in config_aiogram.admin_id:
         await message.answer('Добро пожаловать', reply_markup=main_kb.start_btns(True, admin=True))
     else:
         await message.answer('Вы не подписаны.', reply_markup=main_kb.start_btns(False))
