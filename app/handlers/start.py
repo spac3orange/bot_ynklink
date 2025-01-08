@@ -20,6 +20,7 @@ async def process_start(message: Message, state: FSMContext):
         user = await funcs.add_user(session, uid, uname)
         user_sub = user.subscription
     print(type(uid), type(config_aiogram.admin_id))
+    print(uid, config_aiogram.admin_id)
     if user_sub:
         await message.answer('Добро пожаловать', reply_markup=main_kb.start_btns(True))
     elif str(uid) == config_aiogram.admin_id:
