@@ -32,6 +32,7 @@ async def p_admp(call: CallbackQuery):
 
 @router.callback_query(F.data == 'adm_send_msg')
 async def adm_input_text(call: CallbackQuery, state: FSMContext):
+    await call.answer()
     await call.message.answer('Введите текст рассылки: ')
     await state.set_state(states.AdmSend.text)
 
