@@ -43,10 +43,11 @@ async def tar_choose(call: CallbackQuery):
     tarif = call.data.split('_')[-1]
     async with AsyncSessionLocal() as session:
         tarif_list = await funcs.get_all_tarifs(session)
-    tarif_dict = {'month': tarif_list[0].price,
-                  'quart': tarif_list[1].price,
-                  'year': tarif_list[2].price,
-                  'sale': tarif_list[3].price}
+        sorted_tarifs = sorted(tarif_list, key=lambda tar: tar.record_id)
+    tarif_dict = {'month': sorted_tarifs[0].price,
+                  'quart': sorted_tarifs[1].price,
+                  'year': sorted_tarifs[2].price,
+                  'sale': sorted_tarifs[3].price}
     if tarif == 'month':
         await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['month']} тг.',
                                   reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
@@ -67,10 +68,11 @@ async def process_buy(call: CallbackQuery):
     tar_name = call.data.split('_')[-1]
     async with AsyncSessionLocal() as session:
         tarif_list = await funcs.get_all_tarifs(session)
-    tarif_dict = {'month': tarif_list[0].price,
-                  'quart': tarif_list[1].price,
-                  'year': tarif_list[2].price,
-                  'sale': tarif_list[3].price}
+        sorted_tarifs = sorted(tarif_list, key=lambda tar: tar.record_id)
+    tarif_dict = {'month': sorted_tarifs[0].price,
+                  'quart': sorted_tarifs[1].price,
+                  'year': sorted_tarifs[2].price,
+                  'sale': sorted_tarifs[3].price}
     pid, ppage = await create_payment_page(tarif_dict[tar_name])
     if ppage:
         link = f'<a href="{ppage}">Freedom Pay</a>'
