@@ -73,7 +73,7 @@ async def send_data(state_data: dict, from_uid: int):
 
 
 
-@router.callback_query(F.data == 'add_data')
+@router.callback_query(F.data == 'add_data', IsSub())
 async def add_data(call: CallbackQuery, state: FSMContext):
     await call.answer()
     await call.message.answer('Введите номер телефона: ')
