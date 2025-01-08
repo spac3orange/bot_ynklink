@@ -67,5 +67,6 @@ def admin_panel():
     kb_builder = InlineKeyboardBuilder()
     kb_builder.button(text='Рассылка', callback_data=f'adm_send_msg')
     kb_builder.button(text='Пользователи', callback_data=f'adm_get_users')
+    kb_builder.button(text='Тарифы', callback_data=f'adm_edit_tarifs')
     kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)
