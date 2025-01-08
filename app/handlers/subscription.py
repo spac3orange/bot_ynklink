@@ -7,6 +7,8 @@ from app.crud import funcs
 from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
 from app.filters import IsSub
+from datetime import datetime
+
 router = Router()
 
 @router.callback_query(F.data == 'subscription')
@@ -17,11 +19,18 @@ async def sub_menu(call: CallbackQuery):
         user = await funcs.get_user(session, uid)
         user_sub = user.subscription
     if user_sub:
-        answer_str = ('\nПодписка: Активна'
-                      f'\nДата начала подписки: {user.sub_start_date}'
-                      f'\nДата окончания подписки: {user.sub_end_date}')
+        # Преобразование строки даты в объект datetime
+        end_date = datetime.strptime(user.sub_end_date, "%d-%m-%Y %H:%M:%S")
+        current_date = datetime.now()
+
+        # Вычисляем оставшиеся дни
+        days_left = (end_date - current_date).days
+        answer_str = ('\n<b>Подписка:</b> Активна'
+                      f'\n<b>Дата начала подписки:</b> {user.sub_start_date}'
+                      f'\n<b>Дата окончания подписки:</b> {user.sub_end_date}'
+                      f'\n<b>Осталось дней:</b> {days_left}')
     else:
-        answer_str = ('\nПодписка: Не активна'
-                      f'\nДата начала подписки: Нет'
-                      f'\nДата окончания подписки: Нет')
-    await call.message.answer(text=answer_str)
+        answer_str = ('\n<b>Подписка:</b> Не активна'
+                      f'\n<b>Дата начала</b> подписки: Нет'
+                      f'\n<b>Дата окончания подписки:</b> Нет')
+    await call.message.answer(text=answer_str, parse_mode='HTML')
