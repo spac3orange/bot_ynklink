@@ -32,15 +32,15 @@ async def is_photo(file_path):
 async def send_data_message(message, extracted_data):
     if extracted_data:
         for d in extracted_data:
+            print('extracted data:', d)
             media = None
             if isinstance(d.media, list):
-                album_builder = MediaGroupBuilder()
+                media = MediaGroupBuilder()
                 for m in d.media:
                     if await is_video(m):
-                        album_builder.add_video(media=FSInputFile(m))
+                        media.add_video(media=FSInputFile(m))
                     elif await is_photo(m):
-                        album_builder.add_photo(media=FSInputFile(m))
-                media = album_builder
+                        media.add_photo(media=FSInputFile(m))
             if media:
                 await message.answer_media_group(media.build())
             await message.answer(f'\nНомер телефона: {d.number}'
