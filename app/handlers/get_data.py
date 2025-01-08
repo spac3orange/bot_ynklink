@@ -42,6 +42,7 @@ async def send_data_message(message, extracted_data):
                     elif await is_photo(m):
                         media.add_photo(media=FSInputFile(m))
             if media:
+                print('media:', media)
                 await message.answer_media_group(media.build())
             await message.answer(f'\nНомер телефона: {d.number}'
                                  f'\nГород: {d.city}'
