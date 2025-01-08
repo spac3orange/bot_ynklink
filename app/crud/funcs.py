@@ -341,3 +341,30 @@ async def get_all_tarifs(session: AsyncSession):
         # Логируем ошибку
         logger.error(f"Failed to retrieve tarifs: {e}")
         raise
+
+
+async def update_tarif_price(record_id: int,
+                             new_price: int,
+                             session: AsyncSession):
+    try:
+        # Получаем запись по record_id
+        stmt = select(Tarifs).filter(Tarifs.record_id == record_id)
+        result = await session.execute(stmt)
+        tarif = result.scalar_one_or_none()  # Получаем одну запись или None
+
+        if tarif is None:
+            logger.info(f"No record found with ID {record_id}.")
+            return None
+
+        # Обновляем значение price
+        tarif.price = new_price
+        await session.commit()  # Сохраняем изменения
+        await session.refresh(tarif)  # Обновляем объект в сессии
+
+        logger.info(f"Updated record ID {record_id} with new price {new_price}.")
+        return tarif
+
+    except Exception as e:
+        logger.error(f"Failed to update price for record ID {record_id}: {e}")
+        await session.rollback()  # Откатываем изменения в случае ошибки
+        raise

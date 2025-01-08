@@ -16,3 +16,6 @@ class GetData(StatesGroup):
 
 class AdmSend(StatesGroup):
     text = State()
+
+class AdmEditTar(StatesGroup):
+    tar_num = State()

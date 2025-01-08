@@ -43,3 +43,43 @@ async def adm_send_text(message: Message, state: FSMContext):
     await users_mailing(text)
     await message.answer('Рассылка завершена.')
     await state.clear()
+
+@router.callback_query(F.data == 'adm_tarifs')
+async def p_get_tar(call: CallbackQuery):
+    await call.answer()
+    async with AsyncSessionLocal() as session:
+        tarifs = await funcs.get_all_tarifs(session)
+    tarifs_text = ('Тарифы:'
+                   f'\n1. Месячный: {tarifs[0].price}'
+                   f'\n2. Квартальный: {tarifs[1].price}'
+                   f'\n3. Годовой: {tarifs[2].price}'
+                   f'\n4. Акционный: {tarifs[3].price}'
+                   )
+    await call.message.answer(tarifs_text, reply_markup=main_kb.admin_edit_tarifs())
+
+
+@router.callback_query(F.data == 'adm_edit_tarifs')
+async def p_tar_num(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await call.message.answer('Введите номер тарифа и новую цену через пробел:\nПример: 1 5000')
+    await state.set_state(states.AdmEditTar.tar_num)
+
+
+@router.message(states.AdmEditTar.tar_num)
+async def p_edit_tar(message: Message, state: FSMContext):
+    tar_data = message.text.split(' ')
+    tar_num, tar_price = int(tar_data[0]), int(tar_data[1])
+    async with AsyncSessionLocal() as session:
+        await funcs.update_tarif_price(tar_num, tar_price, session)
+    await message.answer('Стоимость обновлена.')
+    await state.clear()
+
+    async with AsyncSessionLocal() as session:
+        tarifs = await funcs.get_all_tarifs(session)
+    tarifs_text = ('Тарифы:'
+                   f'\n1. Месячный: {tarifs[0].price}'
+                   f'\n2. Квартальный: {tarifs[1].price}'
+                   f'\n3. Годовой: {tarifs[2].price}'
+                   f'\n4. Акционный: {tarifs[3].price}'
+                   )
+    await message.answer(tarifs_text, reply_markup=main_kb.admin_edit_tarifs())

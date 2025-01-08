@@ -48,13 +48,17 @@ async def tar_choose(call: CallbackQuery):
                   'year': tarif_list[2].price,
                   'sale': tarif_list[3].price}
     if tarif == 'month':
-        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['month']} тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
+        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['month']} тг.',
+                                  reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'quart':
-        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['quart']} тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
+        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['quart']} тг.',
+                                  reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'year':
-        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['year']} тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
+        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['year']} тг.',
+                                  reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'sale':
-        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['month']} тг.', reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
+        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['sale']} тг.',
+                                  reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
 
 
 @router.callback_query(F.data.startswith('buy_tar_'))
