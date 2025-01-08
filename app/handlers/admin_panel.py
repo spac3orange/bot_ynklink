@@ -50,10 +50,10 @@ async def p_get_tar(call: CallbackQuery):
     async with AsyncSessionLocal() as session:
         tarifs = await funcs.get_all_tarifs(session)
     tarifs_text = ('Тарифы:'
-                   f'\n1. Месячный: {tarifs[0].price}'
-                   f'\n2. Квартальный: {tarifs[1].price}'
-                   f'\n3. Годовой: {tarifs[2].price}'
-                   f'\n4. Акционный: {tarifs[3].price}'
+                   f'\n1. Месячный: {tarifs[0].price} тг.'
+                   f'\n2. Квартальный: {tarifs[1].price} тг.'
+                   f'\n3. Годовой: {tarifs[2].price} тг.'
+                   f'\n4. Акционный: {tarifs[3].price} тг.'
                    )
     await call.message.answer(tarifs_text, reply_markup=main_kb.admin_edit_tarifs())
 
@@ -77,9 +77,9 @@ async def p_edit_tar(message: Message, state: FSMContext):
     async with AsyncSessionLocal() as session:
         tarifs = await funcs.get_all_tarifs(session)
     tarifs_text = ('Тарифы:'
-                   f'\n1. Месячный: {tarifs[0].price}'
-                   f'\n2. Квартальный: {tarifs[1].price}'
-                   f'\n3. Годовой: {tarifs[2].price}'
-                   f'\n4. Акционный: {tarifs[3].price}'
+                   f'\n1. Месячный: {tarifs[0].price} тг.'
+                   f'\n2. Квартальный: {tarifs[1].price} тг.'
+                   f'\n3. Годовой: {tarifs[2].price} тг.'
+                   f'\n4. Акционный: {tarifs[3].price} тг.'
                    )
     await message.answer(tarifs_text, reply_markup=main_kb.admin_edit_tarifs())
