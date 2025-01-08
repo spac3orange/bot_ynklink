@@ -8,7 +8,7 @@ def start_btns(sub: bool = False, admin = False):
         kb_builder.button(text='Проверить данные', callback_data='get_data')
         kb_builder.button(text='Внести данные', callback_data='add_data')
         kb_builder.button(text='Подписка', callback_data='subscription')
-    if admin:
+    elif admin:
         kb_builder.button(text='Проверить данные', callback_data='get_data')
         kb_builder.button(text='Внести данные', callback_data='add_data')
         kb_builder.button(text='Подписка', callback_data='subscription')
