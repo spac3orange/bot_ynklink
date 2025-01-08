@@ -16,9 +16,6 @@ from app.filters import IsSub
 import magic
 
 router = Router()
-router.message.filter(
-    IsSub()
-)
 
 async def get_mime_type(file_path):
     mime = magic.Magic(mime=True)
@@ -56,7 +53,7 @@ async def send_data_message(message, extracted_data):
         print(extracted_data)
 
 
-@router.callback_query(F.data == 'get_data')
+@router.callback_query(F.data == 'get_data', IsSub())
 async def get_data(call: CallbackQuery):
     await call.answer()
     await call.message.answer('Выберите способ поиска:', reply_markup=main_kb.data_type())
