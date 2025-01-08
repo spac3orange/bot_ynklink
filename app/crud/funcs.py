@@ -1,10 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud.models import User, UserData, TempData
 from app.core import logger
-from sqlalchemy.future import select
 from typing import Optional, List, Union
 from sqlalchemy.orm.exc import NoResultFound
-
+from datetime import datetime, timedelta
+from sqlalchemy.future import select
 
 async def add_user(session: AsyncSession, user_id: int, user_name: str) -> User:
     logger.info(f"Attempting to add or retrieve user with ID: {user_id}")
@@ -187,13 +187,6 @@ async def transfer_temp_to_user_data(
         raise
 
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from typing import Optional, List
-from app.crud.models import UserData
-from app.core import logger
-
-
 async def get_user_data_by_number_or_document(
     session: AsyncSession,
     number: Optional[str] = None,
@@ -223,3 +216,24 @@ async def get_user_data_by_number_or_document(
     except Exception as e:
         logger.error(f"Error retrieving data from users_data table: {e}")
         raise
+
+
+
+async def get_users_with_expiring_subscriptions(session: AsyncSession):
+    # Определяем текущую дату и дату через 3 дня
+    now = datetime.now()
+    three_days_later = now + timedelta(days=3)
+
+    # Выполняем запрос к таблице пользователей
+    result = await session.execute(select(User))
+    users = result.scalars().all()
+
+    # Отбираем пользователей с подпиской, истекающей в ближайшие 3 дня
+    expiring_users = []
+    for user in users:
+        if user.sub_end_date:  # Проверяем, указана ли дата окончания подписки
+            sub_end_date = datetime.strptime(user.sub_end_date, "%d-%m-%Y %H:%M:%S")
+            if now <= sub_end_date <= three_days_later:
+                expiring_users.append(user)
+
+    return expiring_users

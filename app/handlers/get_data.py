@@ -1,3 +1,4 @@
+import asyncio
 from curses.ascii import isdigit
 
 from aiogram.types import Message, CallbackQuery, FSInputFile
@@ -32,26 +33,22 @@ async def is_photo(file_path):
 async def send_data_message(message, extracted_data):
     if extracted_data:
         for d in extracted_data:
-            print('extracted data:', d.media)
             media = None
             if isinstance(d.media, list) and d.media:
                 media = MediaGroupBuilder()
                 for m in d.media:
-                    print('m', m)
                     if await is_video(m):
                         media.add_video(media=FSInputFile(m))
                     elif await is_photo(m):
                         media.add_photo(media=FSInputFile(m))
-            else:
-                print('no list media')
             if media:
-                print('media:', media)
                 await message.answer_media_group(media.build())
             await message.answer(f'\nНомер телефона: {d.number}'
                                  f'\nГород: {d.city}'
                                  f'\nНомер документа: {d.document}'
                                  f'\nФамилия и/или имя: {d.name}'
                                  f'\nКомментарий: {d.comment}')
+            await asyncio.sleep(2)
         print(extracted_data)
 
 

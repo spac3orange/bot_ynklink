@@ -6,7 +6,7 @@ from app.core.logger import logger
 from app.keyboards import set_commands_menu
 from app.handlers import start, tarifs, add_data, get_data, subscription
 from app.crud import initialize_database, engine
-
+from app.utils import Scheduler
 
 async def start_params() -> None:
     dp = Dispatcher(storage=MemoryStorage())
@@ -24,6 +24,10 @@ async def start_params() -> None:
     # инициализирем БД
     await initialize_database(engine)
 
+    # инициализация планировщика
+
+    scheduler = Scheduler()
+    await scheduler.schedule_subscription_check()
     # Пропускаем накопившиеся апдейты и запускаем polling
     await aiogram_bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(aiogram_bot)
