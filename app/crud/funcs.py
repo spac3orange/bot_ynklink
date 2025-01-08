@@ -292,9 +292,9 @@ async def reset_subscription_for_user(session: AsyncSession, user_id: int):
 async def get_active_users(session: AsyncSession):
     try:
         stmt = (
-            select(UserData)
-            .filter(UserData.subscription.isnot(None))  # Subscription is not None
-            .filter(UserData.subscription.isnot('blocked'))  # Subscription is not 'blocked'
+            select(User)
+            .filter(User.subscription.isnot(None))  # Subscription is not None
+            .filter(User.subscription.isnot('blocked'))  # Subscription is not 'blocked'
         )
 
         result = await session.execute(stmt)
