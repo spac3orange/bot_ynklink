@@ -34,7 +34,7 @@ async def send_data_message(message, extracted_data):
         for d in extracted_data:
             print('extracted data:', d.media)
             media = None
-            if isinstance(d.media, list):
+            if isinstance(d.media, list) and d.media:
                 media = MediaGroupBuilder()
                 for m in d.media:
                     print('m', m)
