@@ -5,6 +5,9 @@ from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from pydantic import with_config
 import mimetypes
+
+from sqlalchemy.util import await_only
+
 from app.core.logger import logger
 from app.crud import AsyncSessionLocal, funcs, prepare_jsonb_data
 from app.keyboards import main_kb
@@ -19,6 +22,7 @@ import os
 
 router = Router()
 router.message.middleware(album_middleware.AlbumMiddleware())
+
 router.message.filter(IsSub())
 
 media_folder = 'app/media'
