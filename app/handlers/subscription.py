@@ -31,6 +31,6 @@ async def sub_menu(call: CallbackQuery):
                       f'\n<b>Осталось дней:</b> {days_left}')
     else:
         answer_str = ('\n<b>Подписка:</b> Не активна'
-                      f'\n<b>Дата начала</b> подписки: Нет'
+                      f'\n<b>Дата начала подписки:</b> Нет'
                       f'\n<b>Дата окончания подписки:</b> Нет')
     await call.message.answer(text=answer_str, parse_mode='HTML')

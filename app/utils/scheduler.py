@@ -4,6 +4,7 @@ from apscheduler.triggers.cron import CronTrigger
 from pydantic import with_config
 from app.core import logger, aiogram_bot
 from app.crud import AsyncSessionLocal, funcs
+from app.keyboards import main_kb
 
 
 class Scheduler:
@@ -37,7 +38,8 @@ async def notify_users(users):
 async def notify_expired(users):
     for user in users:
         try:
-            await aiogram_bot.send_message(chat_id=user.id, text=f"Ваша подписка истекла. Для возобновления доступа продлите её.")
+            await aiogram_bot.send_message(chat_id=user.id, text=f"Ваша подписка истекла. Для возобновления доступа, продлите её.",
+                                           reply_markup=main_kb.tarifs())
             logger.info(f"Notification sent to {user.id}")
             async with AsyncSessionLocal() as session:
                 await funcs.reset_subscription_for_user(session, user.id)

@@ -76,3 +76,9 @@ def admin_edit_tarifs():
     kb_builder.button(text='Редактировать', callback_data=f'adm_edit_tarifs')
     kb_builder.adjust(1)
     return kb_builder.as_markup(resize_keyboard=True)
+
+def tarifs():
+    kb_builder = InlineKeyboardBuilder()
+    kb_builder.button(text='Тарифы', callback_data='tarif_info')
+    kb_builder.adjust(1)
+    return kb_builder.as_markup(resize_keyboard=True)
