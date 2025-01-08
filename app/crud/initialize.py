@@ -1,4 +1,5 @@
 from app.crud.session import Base
+from app.core import logger
 
 
 async def initialize_database(engine):
@@ -6,4 +7,4 @@ async def initialize_database(engine):
         # Удаляем существующие таблицы и создаем заново (для разработки)
         #await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-        print("Database initialized")
+        logger.info("Database initialized")

@@ -10,7 +10,7 @@ class Scheduler:
     def __init__(self):
         self.scheduler = AsyncIOScheduler()
         self.scheduler.start()
-        print('scheduler started')
+        logger.info('Scheduler started')
 
 
     async def schedule_subscription_check(self):
