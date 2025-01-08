@@ -16,7 +16,8 @@ from app.filters import IsSub
 import magic
 
 router = Router()
-router.message.filter(IsSub(F))
+sub_filter = IsSub()
+router.message.filter(sub_filter(F))
 
 async def get_mime_type(file_path):
     mime = magic.Magic(mime=True)
