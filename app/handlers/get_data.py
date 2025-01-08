@@ -42,6 +42,8 @@ async def send_data_message(message, extracted_data):
                         media.add_video(media=FSInputFile(m))
                     elif await is_photo(m):
                         media.add_photo(media=FSInputFile(m))
+            else:
+                print('no list media')
             if media:
                 print('media:', media)
                 await message.answer_media_group(media.build())
