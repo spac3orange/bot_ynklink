@@ -32,7 +32,7 @@ async def is_photo(file_path):
 async def send_data_message(message, extracted_data):
     if extracted_data:
         for d in extracted_data:
-            print('extracted data:', d)
+            print('extracted data:', d.media)
             media = None
             if isinstance(d.media, list):
                 media = MediaGroupBuilder()
