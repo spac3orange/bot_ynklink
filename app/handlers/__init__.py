@@ -1,1 +1,1 @@
-from . import start, tarifs, get_data, add_data, subscription
+from . import start, tarifs, get_data, add_data, subscription, admin_panel

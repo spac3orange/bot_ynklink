@@ -18,3 +18,7 @@ router.message.filter(
     IsAdmin()
 )
 
+@router.callback_query(F.data == 'admin_panel')
+async def p_admp(call: CallbackQuery):
+    await call.answer()
+    await call.message.answer('Панель администратора')

@@ -4,7 +4,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from app.core import aiogram_bot
 from app.core.logger import logger
 from app.keyboards import set_commands_menu
-from app.handlers import start, tarifs, add_data, get_data, subscription
+from app.handlers import start, tarifs, add_data, get_data, subscription, admin_panel
 from app.crud import initialize_database, engine
 from app.utils import Scheduler
 
@@ -15,6 +15,7 @@ async def start_params() -> None:
     dp.include_router(add_data.router)
     dp.include_router(get_data.router)
     dp.include_router(subscription.router)
+    dp.include_router(admin_panel.router)
 
     logger.info('Bot started')
 

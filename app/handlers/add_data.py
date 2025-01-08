@@ -12,11 +12,26 @@ from app.filters import IsSub
 from random import randint
 import magic
 import os
+import re
 
 router = Router()
 router.message.middleware(album_middleware.AlbumMiddleware())
 
 media_folder = 'app/media'
+
+
+def format_phone_number(number: str) -> str:
+    formatted_number = re.sub(r"[^\d+]", "", number)
+    if formatted_number.startswith('+'):
+        formatted_number = '+' + re.sub(r"[^\d]", "", formatted_number[1:])
+    else:
+        formatted_number = '+' + re.sub(r"[^\d]", "", formatted_number)
+
+    return formatted_number
+
+def is_valid_document(doc: str) -> bool:
+    return bool(re.match(r'^\d+$', doc))
+
 
 async def get_mime_type(file_path):
     mime = magic.Magic(mime=True)
@@ -80,7 +95,11 @@ async def add_data(call: CallbackQuery, state: FSMContext):
 @router.message(states.AddData.number)
 async def p_number(message: Message, state: FSMContext):
     number = message.text
-    await state.update_data(number=number)
+    format_number = format_phone_number(number)
+    if len(format_number) < 12:
+        await message.answer("Номер телефона некорректен. Пожалуйста, введите корректный номер.")
+        return
+    await state.update_data(number=format_number)
     await message.answer('Введите город:')
     await state.set_state(states.AddData.city)
 
@@ -94,9 +113,13 @@ async def p_city(message: Message, state: FSMContext):
 @router.message(states.AddData.document)
 async def p_doc(message: Message, state: FSMContext):
     doc = message.text
-    await state.update_data(doc=doc)
-    await message.answer('Введите фамилию и/или имя:')
-    await state.set_state(states.AddData.name)
+    if is_valid_document(doc):
+        await state.update_data(doc=doc)
+        await message.answer('Введите фамилию и/или имя:')
+        await state.set_state(states.AddData.name)
+    else:
+        await message.answer("Номер документа должен содержать только цифры. Пожалуйста, введите корректный номер.")
+        return
 
 
 @router.message(states.AddData.name)

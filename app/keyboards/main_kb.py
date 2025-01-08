@@ -62,3 +62,10 @@ def admin_confirmation(from_id, record_id):
     kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)
 
+
+def admin_panel():
+    kb_builder = InlineKeyboardBuilder()
+    kb_builder.button(text='Рассылка', callback_data=f'adm_send_msg')
+    kb_builder.button(text='Пользователи', callback_data=f'adm_get_users')
+    kb_builder.adjust(2)
+    return kb_builder.as_markup(resize_keyboard=True)
