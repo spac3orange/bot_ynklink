@@ -302,7 +302,7 @@ async def p_conf_edit(message: Message, state: FSMContext):
                    f'\n2. Город: {data.city}'
                    f'\n3. Номер документа: {data.document}'
                    f'\n4. Фамилия и/или имя: {data.name}'
-                   f'\n5. Комментарий: {data.commentary}')
+                   f'\n5. Комментарий: {data.comment}')
     await message.answer(new_info, reply_markup=main_kb.adm_edit_data(int(sdata['rec_id'])))
 
 
