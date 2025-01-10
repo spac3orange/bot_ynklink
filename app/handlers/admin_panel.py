@@ -139,7 +139,7 @@ async def p_adm_get_user_data(call: CallbackQuery):
             media = False
             adm_message = (f'\n\nНомер телефона: {d.number}'
                            f'\nГород: {d.city}'
-                           f'\nНомер документа: {d.doc}'
+                           f'\nНомер документа: {d.document}'
                            f'\nФамилия и/или имя: {d.name}'
                            f'\nКомментарий: {d.comm}')
             if isinstance(d.media, list) and d.media:
