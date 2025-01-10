@@ -141,7 +141,7 @@ async def p_adm_get_user_data(call: CallbackQuery):
                            f'\nГород: {d.city}'
                            f'\nНомер документа: {d.document}'
                            f'\nФамилия и/или имя: {d.name}'
-                           f'\nКомментарий: {d.comm}')
+                           f'\nКомментарий: {d.comment}')
             if isinstance(d.media, list) and d.media:
                 media = True
                 album_builder = MediaGroupBuilder()
