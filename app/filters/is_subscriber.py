@@ -2,7 +2,7 @@ from aiogram.filters import BaseFilter
 from aiogram.types import Message
 from app.crud import funcs
 from app.crud import AsyncSessionLocal
-from app.core import logger
+from app.core import logger, config_aiogram
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 from app.crud import funcs  # Импортируем ваши функции для работы с базой данных
@@ -23,6 +23,10 @@ class IsSub(BaseFilter):
         # Логируем процесс
         logger.info(f"Checking if user {user_id} has an active subscription.")
         logger.info(f"Active subscribers: {sub_list}")
+
+        admin_list = config_aiogram.admin_id
+        if str(message.from_user.id) in admin_list:
+            return True
 
         # Проверяем, есть ли ID пользователя в списке активных подписчиков
         return user_id in sub_list

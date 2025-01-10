@@ -1,3 +1,5 @@
+import asyncio
+
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram import Router, F
@@ -155,6 +157,7 @@ async def p_adm_get_user_data(call: CallbackQuery):
                 await call.message.answer(adm_message)
             else:
                 await call.message.answer(adm_message)
+            await asyncio.sleep(1)
     else:
         await call.message.answer('Данные не найдены.')
     pass
