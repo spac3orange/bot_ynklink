@@ -252,7 +252,7 @@ async def adm_decline_data(call: CallbackQuery):
     await aiogram_bot.send_message(from_uid, 'Администратор отклонил ваши данные.')
 
 
-@router.callback_query(F.data.startswith('adm_confirm_data_'))
+@router.callback_query(F.data.startswith('adm_edit_data_'))
 async def adm_edit_data(call: CallbackQuery, state: FSMContext):
     await call.answer()
     from_uid = call.data.split('_')[-2]
