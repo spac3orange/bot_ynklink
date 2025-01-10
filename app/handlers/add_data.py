@@ -262,9 +262,9 @@ async def adm_edit_data(call: CallbackQuery, state: FSMContext):
 
     adm_message = (f'\n1. Номер телефона: {sdata.number}'
                    f'\n2. Город: {sdata.city}'
-                   f'\n3. Номер документа: {sdata.doc}'
+                   f'\n3. Номер документа: {sdata.document}'
                    f'\n4. Фамилия и/или имя: {sdata.name}'
-                   f'\n5. Комментарий: {sdata.comm}'
+                   f'\n5. Комментарий: {sdata.comment}'
                    f'\nВведите номер поля для редактирования:\nПример: 1')
     await call.message.answer(adm_message)
     await state.set_state(states.AdmEditData.field_num)
