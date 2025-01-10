@@ -106,7 +106,7 @@ async def p_edit_tar(message: Message, state: FSMContext):
     await message.answer(tarifs_text, reply_markup=main_kb.admin_edit_tarifs())
 
 
-@router.callback_query(F.data == 'adm_get_users')
+@router.callback_query(F.data == 'adm_users_panel')
 async def p_adm_users(call: CallbackQuery):
     await call.answer()
     async with AsyncSessionLocal() as session:
