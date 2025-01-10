@@ -19,3 +19,7 @@ class AdmSend(StatesGroup):
 
 class AdmEditTar(StatesGroup):
     tar_num = State()
+
+class AdmEditData(StatesGroup):
+    field_num = State()
+    new_data = State()

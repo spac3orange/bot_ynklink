@@ -58,6 +58,7 @@ def confirm_data():
 def admin_confirmation(from_id, record_id):
     kb_builder = InlineKeyboardBuilder()
     kb_builder.button(text='Подтвердить', callback_data=f'adm_confirm_data_{from_id}_{record_id}')
+    kb_builder.button(text='Редактировать', callback_data=f'adm_confirm_data_{from_id}_{record_id}')
     kb_builder.button(text='Отказать', callback_data=f'adm_decline_data_{from_id}_{record_id}')
     kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)
@@ -80,5 +81,12 @@ def admin_edit_tarifs():
 def tarifs():
     kb_builder = InlineKeyboardBuilder()
     kb_builder.button(text='Тарифы', callback_data='tarif_info')
+    kb_builder.adjust(1)
+    return kb_builder.as_markup(resize_keyboard=True)
+
+def adm_edit_data(rec_id):
+    kb_builder = InlineKeyboardBuilder()
+    kb_builder.button(text='Сохранить', callback_data=f'adm_save_new_data_{rec_id}')
+    kb_builder.button(text='Редактировать', callback_data=f'adm_edit_new_data_{rec_id}')
     kb_builder.adjust(1)
     return kb_builder.as_markup(resize_keyboard=True)

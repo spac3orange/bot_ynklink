@@ -368,3 +368,59 @@ async def update_tarif_price(record_id: int,
         logger.error(f"Failed to update price for record ID {record_id}: {e}")
         await session.rollback()  # Откатываем изменения в случае ошибки
         raise
+
+
+async def get_temp_data_by_recid(session: AsyncSession, record_id: int) -> TempData | None:
+    """
+    Получить данные из таблицы temp_data по record_id.
+
+    :param session: Асинхронная сессия SQLAlchemy.
+    :param record_id: Идентификатор записи.
+    :return: Объект TempData или None, если запись не найдена.
+    """
+    try:
+        # Формируем запрос для выбора записи
+        stmt = select(TempData).where(TempData.record_id == record_id)
+        result = await session.execute(stmt)
+        temp_data = result.scalar_one_or_none()
+
+        return temp_data
+    except Exception as e:
+        logger.error(f"Error while retrieving TempData by record_id {record_id}: {e}")
+        raise
+
+
+async def update_temp_data_by_id(session: AsyncSession, record_id: int, fields_to_update: dict) -> bool:
+    """
+    Обновить данные в таблице temp_data по record_id.
+
+    :param session: Асинхронная сессия SQLAlchemy.
+    :param record_id: Идентификатор записи.
+    :param fields_to_update: Словарь с данными для обновления (например, {'name': 'Антон'}).
+    :return: True, если обновление прошло успешно, иначе False.
+    """
+    try:
+        # Получаем запись по record_id
+        stmt = select(TempData).where(TempData.record_id == record_id)
+        result = await session.execute(stmt)
+        temp_data = result.scalar_one_or_none()
+
+        if temp_data is None:
+            logger.warning(f"No record found with record_id {record_id}")
+            return False
+
+        # Обновляем переданные поля
+        for field, value in fields_to_update.items():
+            if hasattr(temp_data, field):  # Проверяем, существует ли поле в модели
+                setattr(temp_data, field, value)
+            else:
+                logger.warning(f"Field '{field}' does not exist in TempData model.")
+
+        # Сохраняем изменения
+        await session.commit()
+        logger.info(f"Record with record_id {record_id} updated successfully.")
+        return True
+    except Exception as e:
+        await session.rollback()
+        logger.error(f"Error while updating TempData record_id {record_id}: {e}")
+        raise

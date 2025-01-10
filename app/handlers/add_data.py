@@ -1,3 +1,5 @@
+from curses.ascii import isdigit
+
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram import Router, F
@@ -248,3 +250,70 @@ async def adm_decline_data(call: CallbackQuery):
     record_id = int(call.data.split('_')[-1])
     await call.answer()
     await aiogram_bot.send_message(from_uid, 'Администратор отклонил ваши данные.')
+
+
+@router.callback_query(F.data.startswith('adm_confirm_data_'))
+async def adm_edit_data(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    from_uid = call.data.split('_')[-2]
+    record_id = int(call.data.split('_')[-1])
+    async with AsyncSessionLocal() as session:
+        sdata = await funcs.get_temp_data_by_recid(session, record_id)
+
+    adm_message = (f'\n1. Номер телефона: {sdata.number}'
+                   f'\n2. Город: {sdata.city}'
+                   f'\n3. Номер документа: {sdata.doc}'
+                   f'\n4. Фамилия и/или имя: {sdata.name}'
+                   f'\n5. Комментарий: {sdata.comm}'
+                   f'\nВведите номер поля для редактирования:\nПример: 1')
+    await call.message.answer(adm_message)
+    await state.set_state(states.AdmEditData.field_num)
+    await state.update_data(rec_id=record_id)
+
+
+@router.message(states.AdmEditData.field_num)
+async def p_edit_data(message: Message, state: FSMContext):
+    field = message.text
+    if isdigit(field):
+        await state.update_data(field=field)
+        await message.answer('Введите новую информацию: ')
+        await state.set_state(states.AdmEditData.new_data)
+    else:
+        await message.answer('Ошибка. Введите номер поля для редактирования, например "1"')
+
+
+
+@router.message(states.AdmEditData.new_data)
+async def p_conf_edit(message: Message, state: FSMContext):
+    new_data = message.text
+    await state.update_data(new_data=new_data)
+    await state.clear()
+    sdata = await state.get_data()
+    fields = {'1': 'number', '2': 'city', '3': 'document', '4': 'name', '5': 'comment'}
+    selected_field = fields[sdata['field']]
+    new_data = {selected_field: new_data}
+    async with AsyncSessionLocal() as session:
+        await funcs.update_temp_data_by_id(session, int(sdata['rec_id']), new_data)
+    await message.answer('Данные обновлены.')
+    async with AsyncSessionLocal() as session:
+        data = await funcs.get_temp_data_by_recid(session, int(sdata['rec_id']))
+    await message.answer('Предпросмотр:')
+    new_info = (f'\n1. Номер телефона: {data.number}'
+                   f'\n2. Город: {data.city}'
+                   f'\n3. Номер документа: {data.doc}'
+                   f'\n4. Фамилия и/или имя: {data.name}'
+                   f'\n5. Комментарий: {data.comm}')
+    await message.answer(new_info, reply_markup=main_kb.adm_edit_data(int(sdata['rec_id'])))
+
+
+@router.callback_query(F.data.startswith('adm_save_new_data_'))
+async def p_adm_save_new_data(call: CallbackQuery):
+    record_id = int(call.data.split('_')[-1])
+    await call.answer()
+    async with AsyncSessionLocal() as session:
+        await funcs.transfer_temp_to_user_data(session, record_id)
+    await call.message.answer('Данные сохранены.')
+
+@router.callback_query(F.data.startswith('adm_edit_new_data_'))
+async def p_edit_new_data(call: CallbackQuery, state: FSMContext):
+    await adm_edit_data(call, state)
