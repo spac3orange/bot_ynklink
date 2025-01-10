@@ -287,8 +287,8 @@ async def p_edit_data(message: Message, state: FSMContext):
 async def p_conf_edit(message: Message, state: FSMContext):
     new_data = message.text
     await state.update_data(new_data=new_data)
-    await state.clear()
     sdata = await state.get_data()
+    await state.clear()
     fields = {'1': 'number', '2': 'city', '3': 'document', '4': 'name', '5': 'comment'}
     selected_field = fields[sdata['field']]
     new_data = {selected_field: new_data}
