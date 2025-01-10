@@ -67,7 +67,7 @@ def admin_confirmation(from_id, record_id):
 def admin_panel():
     kb_builder = InlineKeyboardBuilder()
     kb_builder.button(text='Рассылка', callback_data=f'adm_send_msg')
-    kb_builder.button(text='Пользователи', callback_data=f'adm_get_users')
+    kb_builder.button(text='Пользователи', callback_data=f'adm_users_panel')
     kb_builder.button(text='Тарифы', callback_data=f'adm_tarifs')
     kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)
@@ -89,4 +89,13 @@ def adm_edit_data(rec_id):
     kb_builder.button(text='Сохранить', callback_data=f'adm_save_new_data_{rec_id}')
     kb_builder.button(text='Редактировать', callback_data=f'adm_edit_new_data_{rec_id}')
     kb_builder.adjust(1)
+    return kb_builder.as_markup(resize_keyboard=True)
+
+
+def adm_edit_user(user_id):
+    kb_builder = InlineKeyboardBuilder()
+    kb_builder.button(text='Данные', callback_data=f'adm_get_data_{user_id}')
+    kb_builder.button(text='Заблокировать', callback_data=f'adm_block_{user_id}')
+    kb_builder.button(text='Разблокировать', callback_data=f'adm_unblock_{user_id}')
+    kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)

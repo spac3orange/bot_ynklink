@@ -2,15 +2,34 @@ from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
+from pydantic import with_config
+
 from app.crud import AsyncSessionLocal, funcs, prepare_jsonb_data
 from app.keyboards import main_kb
 from app.states import states
 from app.filters import IsAdmin
 from app.core import logger, aiogram_bot
+import magic
+
 router = Router()
 router.message.filter(
     IsAdmin()
 )
+
+async def get_mime_type(file_path):
+    mime = magic.Magic(mime=True)
+    mime_type = mime.from_file(file_path)
+    return mime_type
+
+async def is_video(file_path):
+    mime_type = await get_mime_type(file_path)
+    return mime_type.startswith('video')
+
+
+async def is_photo(file_path):
+    mime_type = await get_mime_type(file_path)
+    return mime_type.startswith('image')
+
 
 async def users_mailing(mailing_text: str):
     async with AsyncSessionLocal() as session:
@@ -85,3 +104,69 @@ async def p_edit_tar(message: Message, state: FSMContext):
                    f'\n4. Акционный: {sorted_tarifs[3].price} тг.'
                    )
     await message.answer(tarifs_text, reply_markup=main_kb.admin_edit_tarifs())
+
+
+@router.callback_query(F.data == 'adm_get_users')
+async def p_adm_users(call: CallbackQuery):
+    await call.answer()
+    async with AsyncSessionLocal() as session:
+        all_users = await funcs.get_all_users(session)
+    if all_users:
+        for u in all_users:
+            uid = u.id
+            uname = u.name
+            u_sub = u.subscription
+            u_substart = u.sub_start_date
+            u_subend = u.sub_end_date
+            adm_message = (f'\nTG ID: {uid} '
+                           f'\nUsername: {uname}'
+                           f'\nПодписка: {u_sub}'
+                           f'\nНачало подписки: {u_substart}'
+                           f'\nКонец подписки: {u_subend}')
+            await call.message.answer(adm_message, reply_markup=main_kb.adm_edit_user(uid))
+    else:
+        await call.message.answer('Пользователи не найдены.')
+
+
+@router.callback_query(F.data.startswith('adm_get_data_'))
+async def p_adm_get_user_data(call: CallbackQuery):
+    await call.answer()
+    uid = call.data.split('_')[-1]
+    async with AsyncSessionLocal() as session:
+        user_data = await funcs.get_user_data_by_user_id(session, int(uid))
+    if user_data:
+        for d in user_data:
+            media = False
+            adm_message = (f'\n\nНомер телефона: {d.number}'
+                           f'\nГород: {d.city}'
+                           f'\nНомер документа: {d.doc}'
+                           f'\nФамилия и/или имя: {d.name}'
+                           f'\nКомментарий: {d.comm}')
+            if isinstance(d.media, list) and d.media:
+                media = True
+                album_builder = MediaGroupBuilder()
+                for m in d.media:
+                    if await is_video(m):
+                        album_builder.add_video(media=FSInputFile(m))
+                    elif await is_photo(m):
+                        album_builder.add_photo(media=FSInputFile(m))
+            if media:
+                await call.message.answer_media_group(album_builder.build())
+                await call.message.answer(adm_message)
+            else:
+                await call.message.answer(adm_message)
+    else:
+        await call.message.answer('Данные не найдены.')
+    pass
+
+@router.callback_query(F.data.startswith('adm_block_'))
+async def p_adm_blockuser(call: CallbackQuery):
+    await call.answer()
+    uid = call.data.split('_')[-1]
+    pass
+
+@router.callback_query(F.data.startswith('adm_unblock_'))
+async def p_adm_unblockuser(call: CallbackQuery):
+    await call.answer()
+    uid = call.data.split('_')[-1]
+    pass

@@ -6,6 +6,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from datetime import datetime, timedelta
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import update
+from sqlalchemy.exc import SQLAlchemyError
 
 async def get_all_users(session: AsyncSession):
     try:
@@ -20,6 +21,18 @@ async def get_all_users(session: AsyncSession):
         # Логирование ошибки
         logger.error(f"Failed to retrieve users: {e}")
         raise
+
+
+async def get_all_user_data(session: AsyncSession):
+    try:
+        result = await session.execute(select(UserData))
+        user_data_records = result.scalars().all()
+        return user_data_records
+    except SQLAlchemyError as e:
+        logger.error(f"Database error in get_all_user_data: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error in get_all_user_data: {e}")
+    return []
 
 
 async def add_user(session: AsyncSession, user_id: int, user_name: str) -> User:
@@ -236,42 +249,68 @@ async def get_user_data_by_number_or_document(
 
 
 async def get_users_with_expiring_subscriptions(session: AsyncSession):
-    # Определяем текущую дату и дату через 3 дня
-    now = datetime.now()
-    three_days_later = now + timedelta(days=3)
+    """
+    Получить пользователей, у которых подписка истекает в ближайшие 3 дня.
 
-    # Выполняем запрос к таблице пользователей
-    result = await session.execute(select(User))
-    users = result.scalars().all()
+    :param session: Асинхронная сессия SQLAlchemy.
+    :return: Список пользователей с истекающей подпиской.
+    """
+    try:
+        # Определяем текущую дату и дату через 3 дня
+        now = datetime.now()
+        three_days_later = now + timedelta(days=3)
 
-    # Отбираем пользователей с подпиской, истекающей в ближайшие 3 дня
-    expiring_users = []
-    for user in users:
-        if user.sub_end_date:  # Проверяем, указана ли дата окончания подписки
-            sub_end_date = datetime.strptime(user.sub_end_date, "%d-%m-%Y %H:%M:%S")
-            if now <= sub_end_date <= three_days_later:
-                expiring_users.append(user)
+        # Выполняем запрос к таблице пользователей
+        result = await session.execute(select(User))
+        users = result.scalars().all()
 
-    return expiring_users
+        # Отбираем пользователей с подпиской, истекающей в ближайшие 3 дня
+        expiring_users = []
+        for user in users:
+            if user.sub_end_date:  # Проверяем, указана ли дата окончания подписки
+                sub_end_date = datetime.strptime(user.sub_end_date, "%d-%m-%Y %H:%M:%S")
+                if now <= sub_end_date <= three_days_later:
+                    expiring_users.append(user)
+
+        return expiring_users
+
+    except SQLAlchemyError as e:
+        logger.error(f"Database error in get_users_with_expiring_subscriptions: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error in get_users_with_expiring_subscriptions: {e}")
+    return []
 
 
 async def get_users_with_expired_subscriptions(session: AsyncSession):
-    # Определяем текущую дату
-    now = datetime.now()
+    """
+    Получить пользователей с истекшей подпиской.
 
-    # Выполняем запрос к таблице пользователей
-    result = await session.execute(select(User))
-    users = result.scalars().all()
+    :param session: Асинхронная сессия SQLAlchemy.
+    :return: Список пользователей с истекшей подпиской.
+    """
+    try:
+        # Определяем текущую дату
+        now = datetime.now()
 
-    # Отбираем пользователей с истекшей подпиской
-    expired_users = []
-    for user in users:
-        if user.sub_end_date:  # Проверяем, указана ли дата окончания подписки
-            sub_end_date = datetime.strptime(user.sub_end_date, "%d-%m-%Y %H:%M:%S")
-            if sub_end_date < now:  # Если дата окончания подписки раньше текущей даты
-                expired_users.append(user)
+        # Выполняем запрос к таблице пользователей
+        result = await session.execute(select(User))
+        users = result.scalars().all()
 
-    return expired_users
+        # Отбираем пользователей с истекшей подпиской
+        expired_users = []
+        for user in users:
+            if user.sub_end_date:  # Проверяем, указана ли дата окончания подписки
+                sub_end_date = datetime.strptime(user.sub_end_date, "%d-%m-%Y %H:%M:%S")
+                if sub_end_date < now:  # Если дата окончания подписки раньше текущей даты
+                    expired_users.append(user)
+
+        return expired_users
+
+    except SQLAlchemyError as e:
+        logger.error(f"Database error in get_users_with_expired_subscriptions: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error in get_users_with_expired_subscriptions: {e}")
+    return []
 
 
 async def reset_subscription_for_user(session: AsyncSession, user_id: int):
@@ -370,14 +409,8 @@ async def update_tarif_price(record_id: int,
         raise
 
 
-async def get_temp_data_by_recid(session: AsyncSession, record_id: int) -> TempData | None:
-    """
-    Получить данные из таблицы temp_data по record_id.
-
-    :param session: Асинхронная сессия SQLAlchemy.
-    :param record_id: Идентификатор записи.
-    :return: Объект TempData или None, если запись не найдена.
-    """
+async def get_temp_data_by_recid(session: AsyncSession,
+                                 record_id: int) -> TempData | None:
     try:
         # Формируем запрос для выбора записи
         stmt = select(TempData).where(TempData.record_id == record_id)
@@ -390,15 +423,9 @@ async def get_temp_data_by_recid(session: AsyncSession, record_id: int) -> TempD
         raise
 
 
-async def update_temp_data_by_id(session: AsyncSession, record_id: int, fields_to_update: dict) -> bool:
-    """
-    Обновить данные в таблице temp_data по record_id.
-
-    :param session: Асинхронная сессия SQLAlchemy.
-    :param record_id: Идентификатор записи.
-    :param fields_to_update: Словарь с данными для обновления (например, {'name': 'Антон'}).
-    :return: True, если обновление прошло успешно, иначе False.
-    """
+async def update_temp_data_by_id(session: AsyncSession,
+                                 record_id: int,
+                                 fields_to_update: dict) -> bool:
     try:
         # Получаем запись по record_id
         stmt = select(TempData).where(TempData.record_id == record_id)
@@ -423,4 +450,29 @@ async def update_temp_data_by_id(session: AsyncSession, record_id: int, fields_t
     except Exception as e:
         await session.rollback()
         logger.error(f"Error while updating TempData record_id {record_id}: {e}")
+        raise
+
+
+async def get_user_data_by_user_id(
+    session: AsyncSession,
+    user_id: int
+) -> List[UserData]:
+    if not user_id:
+        logger.error("User ID must be provided.")
+        raise ValueError("User ID must be provided.")
+
+    try:
+        stmt = select(UserData).filter_by(id=user_id)
+        result = await session.execute(stmt)
+        user_data = list(result.scalars().all())
+
+        if user_data:
+            logger.info(f"Found {len(user_data)} records matching user_id {user_id}.")
+        else:
+            logger.info(f"No records found for user_id {user_id}.")
+
+        return user_data
+
+    except Exception as e:
+        logger.error(f"Error retrieving data from UserData table for user_id {user_id}: {e}")
         raise
