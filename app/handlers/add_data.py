@@ -300,9 +300,9 @@ async def p_conf_edit(message: Message, state: FSMContext):
     await message.answer('Предпросмотр:')
     new_info = (f'\n1. Номер телефона: {data.number}'
                    f'\n2. Город: {data.city}'
-                   f'\n3. Номер документа: {data.doc}'
+                   f'\n3. Номер документа: {data.document}'
                    f'\n4. Фамилия и/или имя: {data.name}'
-                   f'\n5. Комментарий: {data.comm}')
+                   f'\n5. Комментарий: {data.commentary}')
     await message.answer(new_info, reply_markup=main_kb.adm_edit_data(int(sdata['rec_id'])))
 
 
