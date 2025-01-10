@@ -58,7 +58,7 @@ def confirm_data():
 def admin_confirmation(from_id, record_id):
     kb_builder = InlineKeyboardBuilder()
     kb_builder.button(text='Подтвердить', callback_data=f'adm_confirm_data_{from_id}_{record_id}')
-    kb_builder.button(text='Редактировать', callback_data=f'adm_confirm_data_{from_id}_{record_id}')
+    kb_builder.button(text='Редактировать', callback_data=f'adm_edit_data_{from_id}_{record_id}')
     kb_builder.button(text='Отказать', callback_data=f'adm_decline_data_{from_id}_{record_id}')
     kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)
