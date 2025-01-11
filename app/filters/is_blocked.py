@@ -20,7 +20,7 @@ class IsBlocked(BaseFilter):
         block_list = [str(user.id) for user in blocked_users]
 
         # Логируем процесс
-        logger.info(f"Checking if user {user_id} is blocked.")
+        logger.info(f"{user_id} is blocked: {user_id in block_list}")
 
         admin_list = config_aiogram.admin_id
         if str(message.from_user.id) in admin_list:
