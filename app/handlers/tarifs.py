@@ -8,6 +8,7 @@ from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
 from app.utils import create_payment_page, get_payment_status
 from datetime import datetime, timedelta
+from app.filters import IsSub
 router = Router()
 
 
