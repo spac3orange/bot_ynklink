@@ -11,7 +11,7 @@ from datetime import datetime
 
 router = Router()
 
-@router.callback_query(F.data == 'subscription', IsBlocked)
+@router.callback_query(F.data == 'subscription', IsBlocked())
 async def sub_menu(call: CallbackQuery):
     await call.answer()
     uid = call.from_user.id

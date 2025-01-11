@@ -38,7 +38,7 @@ async def tar_menu(call: CallbackQuery):
 
 
 
-@router.callback_query(F.data.startswith('tar_'), IsBlocked)
+@router.callback_query(F.data.startswith('tar_'), IsBlocked())
 async def tar_choose(call: CallbackQuery):
     await call.answer()
     tarif = call.data.split('_')[-1]
@@ -63,7 +63,7 @@ async def tar_choose(call: CallbackQuery):
                                   reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
 
 
-@router.callback_query(F.data.startswith('buy_tar_'), IsBlocked)
+@router.callback_query(F.data.startswith('buy_tar_'), IsBlocked())
 async def process_buy(call: CallbackQuery):
     await call.answer()
     tar_name = call.data.split('_')[-1]
@@ -85,7 +85,7 @@ async def process_buy(call: CallbackQuery):
         await call.message.answer('Ошибка при создании ссылки на оплату. Пожалуйста, обратитесь в Тех. Поддержку.')
 
 
-@router.callback_query(F.data.startswith('get_pstatus'), IsBlocked)
+@router.callback_query(F.data.startswith('get_pstatus'), IsBlocked())
 async def get_pstatus(call: CallbackQuery):
     await call.answer()
     uid = call.from_user.id

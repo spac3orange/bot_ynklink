@@ -67,13 +67,13 @@ async def send_data_message(message, extracted_data):
         print(extracted_data)
 
 
-@router.callback_query(F.data == 'get_data', IsSub(), IsBlocked)
+@router.callback_query(F.data == 'get_data', IsSub(), IsBlocked())
 async def get_data(call: CallbackQuery):
     await call.answer()
     await call.message.answer('Выберите способ поиска:', reply_markup=main_kb.data_type())
 
 
-@router.callback_query(F.data == 'get_data_by_num', IsBlocked)
+@router.callback_query(F.data == 'get_data_by_num', IsBlocked())
 async def get_data_byphone(call: CallbackQuery, state: FSMContext):
     await call.answer()
     await call.message.answer('Введите номер телефона:')
@@ -101,7 +101,7 @@ async def p_input_phone(message: Message, state: FSMContext):
 
 
 
-@router.callback_query(F.data == 'get_data_by_doc', IsBlocked)
+@router.callback_query(F.data == 'get_data_by_doc', IsBlocked())
 async def get_data_bydoc(call: CallbackQuery, state: FSMContext):
     await call.answer()
     await call.message.answer('Введите номер документа:')
