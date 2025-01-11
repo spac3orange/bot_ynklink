@@ -81,6 +81,10 @@ async def send_data(state_data: dict, from_uid: int):
             comment=sdata.get("comm"),
             media=media_temp
         )
+        num_coinc = await funcs.get_user_data_by_number_or_document(session, number=sdata['number'])
+    if len(num_coinc) > 0:
+        adm_message += f'\nСовпадений по номеру: {len(num_coinc)}'
+
     await inform_admins(message=adm_message, from_id=uid, album_builder=album_builder, record_id=record_id)
 
 
