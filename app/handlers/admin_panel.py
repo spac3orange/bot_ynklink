@@ -165,11 +165,15 @@ async def p_adm_get_user_data(call: CallbackQuery):
 @router.callback_query(F.data.startswith('adm_block_'))
 async def p_adm_blockuser(call: CallbackQuery):
     await call.answer()
-    uid = call.data.split('_')[-1]
-    pass
+    uid = int(call.data.split('_')[-1])
+    async with AsyncSessionLocal() as session:
+        await funcs.update_subscription(session, uid, 'blocked', None, None)
+    await call.message.answer('Пользователь заблокирован.')
 
 @router.callback_query(F.data.startswith('adm_unblock_'))
 async def p_adm_unblockuser(call: CallbackQuery):
     await call.answer()
-    uid = call.data.split('_')[-1]
-    pass
+    uid = int(call.data.split('_')[-1])
+    async with AsyncSessionLocal() as session:
+        await funcs.update_subscription(session, uid, None, None, None)
+    await call.message.answer('Пользователь разблокирован.')
