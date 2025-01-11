@@ -18,7 +18,7 @@ async def process_start(message: Message, state: FSMContext):
     uname = message.from_user.username
     async with AsyncSessionLocal() as session:
         user = await funcs.add_user(session, uid, uname)
-        user_sub = user.subscription
+        user_sub = user.subscription if user.subscription != 'blocked' else None
     if user_sub and not str(uid) in config_aiogram.admin_id:
         await message.answer('Добро пожаловать', reply_markup=main_kb.start_btns(True))
     elif str(uid) in config_aiogram.admin_id:
