@@ -10,7 +10,7 @@ from app.middlewares import album_middleware
 from app.states import states
 from app.core import aiogram_bot
 from app.utils import inform_admins
-from app.filters import IsSub
+from app.filters import IsSub, IsBlocked
 from random import randint
 import magic
 import os
@@ -91,7 +91,7 @@ async def send_data(state_data: dict, from_uid: int):
 
 
 
-@router.callback_query(F.data == 'add_data', IsSub())
+@router.callback_query(F.data == 'add_data', IsSub(), IsBlocked)
 async def add_data(call: CallbackQuery, state: FSMContext):
     await call.answer()
     await call.message.answer('Введите номер телефона: ')
@@ -145,7 +145,7 @@ async def p_comm(message: Message, state: FSMContext):
     await state.set_state(states.AddData.media)
 
 
-@router.message(F.media_group_id, states.AddData.media)
+@router.message(F.media_group_id, states.AddData.media, IsBlocked)
 async def p_media(message: Message, state: FSMContext, album: list = None):
     saved_files = []
     if album:
@@ -219,13 +219,13 @@ async def p_nomedia(message: Message, state: FSMContext):
         return
 
 
-@router.callback_query(F.data == 'edit_data')
+@router.callback_query(F.data == 'edit_data', IsBlocked)
 async def p_edit_data(call: CallbackQuery, state: FSMContext):
     await call.answer()
     await add_data(call, state)
 
 
-@router.callback_query(F.data == 'confirm_data')
+@router.callback_query(F.data == 'confirm_data', IsBlocked)
 async def p_conf_data(call: CallbackQuery, state: FSMContext):
     await call.answer()
     sdata = await state.get_data()

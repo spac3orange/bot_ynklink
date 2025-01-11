@@ -5,27 +5,26 @@ from app.crud import AsyncSessionLocal
 from app.core import logger, config_aiogram
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
-from app.crud import funcs  # Импортируем ваши функции для работы с базой данных
+from app.crud import funcs
 
 
-class IsSub(BaseFilter):
+class IsBlocked(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         user_id = str(message.from_user.id)  # Получаем ID пользователя из сообщения
 
         # Получаем список активных пользователей с подпиской
         async with AsyncSessionLocal() as session:
-            active_users = await funcs.get_active_users(session)
+            blocked_users = await funcs.get_blocked_users(session)
 
         # Список ID пользователей с активной подпиской
-        sub_list = [str(user.id) for user in active_users]
+        block_list = [str(user.id) for user in blocked_users]
 
         # Логируем процесс
-        logger.info(f"Checking if user {user_id} has an active subscription.")
-        logger.info(f"Active subscribers: {sub_list}")
+        logger.info(f"Checking if user {user_id} is blocked.")
 
         admin_list = config_aiogram.admin_id
         if str(message.from_user.id) in admin_list:
             return True
 
         # Проверяем, есть ли ID пользователя в списке активных подписчиков
-        return user_id in sub_list
+        return user_id not in block_list

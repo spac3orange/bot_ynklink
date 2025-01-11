@@ -6,12 +6,12 @@ from app.core.logger import logger
 from app.crud import funcs
 from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
-from app.filters import IsSub
+from app.filters import IsSub, IsBlocked
 from datetime import datetime
 
 router = Router()
 
-@router.callback_query(F.data == 'subscription')
+@router.callback_query(F.data == 'subscription', IsBlocked)
 async def sub_menu(call: CallbackQuery):
     await call.answer()
     uid = call.from_user.id

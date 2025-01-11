@@ -8,7 +8,7 @@ from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
 from app.utils import create_payment_page, get_payment_status
 from datetime import datetime, timedelta
-from app.filters import IsSub
+from app.filters import IsSub, IsBlocked
 router = Router()
 
 
@@ -38,7 +38,7 @@ async def tar_menu(call: CallbackQuery):
 
 
 
-@router.callback_query(F.data.startswith('tar_'))
+@router.callback_query(F.data.startswith('tar_'), IsBlocked)
 async def tar_choose(call: CallbackQuery):
     await call.answer()
     tarif = call.data.split('_')[-1]
@@ -63,7 +63,7 @@ async def tar_choose(call: CallbackQuery):
                                   reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
 
 
-@router.callback_query(F.data.startswith('buy_tar_'))
+@router.callback_query(F.data.startswith('buy_tar_'), IsBlocked)
 async def process_buy(call: CallbackQuery):
     await call.answer()
     tar_name = call.data.split('_')[-1]
@@ -85,7 +85,7 @@ async def process_buy(call: CallbackQuery):
         await call.message.answer('Ошибка при создании ссылки на оплату. Пожалуйста, обратитесь в Тех. Поддержку.')
 
 
-@router.callback_query(F.data.startswith('get_pstatus'))
+@router.callback_query(F.data.startswith('get_pstatus'), IsBlocked)
 async def get_pstatus(call: CallbackQuery):
     await call.answer()
     uid = call.from_user.id

@@ -361,6 +361,24 @@ async def get_active_users(session: AsyncSession):
         raise
 
 
+async def get_blocked_users(session: AsyncSession) -> List[User]:
+    try:
+        stmt = (
+            select(User)
+            .filter(User.subscription == 'blocked')  # Subscription is 'blocked'
+        )
+
+        result = await session.execute(stmt)
+        users = result.scalars().all()
+
+        logger.info(f"Found {len(users)} blocked users.")
+        return users
+
+    except Exception as e:
+        logger.error(f"Failed to retrieve blocked users: {e}")
+        raise
+
+
 async def get_all_tarifs(session: AsyncSession):
     """
     Получает все записи из таблицы 'tarifs'.
