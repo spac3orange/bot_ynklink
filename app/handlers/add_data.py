@@ -307,6 +307,7 @@ async def adm_decline_data(call: CallbackQuery):
     from_uid = call.data.split('_')[-2]
     record_id = int(call.data.split('_')[-1])
     await call.answer()
+    await call.message.answer('Данные удалены. Пользователь получит уведомление.')
     await aiogram_bot.send_message(from_uid, 'Администратор отклонил ваши данные.')
 
 
