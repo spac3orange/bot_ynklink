@@ -108,9 +108,9 @@ async def get_pstatus(call: CallbackQuery):
     print(pstatus)
     if pstatus in ['new', 'process', 'waiting']:
         await call.message.answer('Платеж еще обрабатывается')
-    if pstatus == 'error':
+    elif pstatus == 'error':
         await call.message.answer('Ошибка при проведении платежа. Пожалуйста, попробуйте позднее.')
-    if pstatus == 'success':
+    elif pstatus == 'success':
         await call.message.answer('Оплата прошла успешно.')
         async with AsyncSessionLocal() as session:
             user_data = await funcs.get_user(session, int(uid))
