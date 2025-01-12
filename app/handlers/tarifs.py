@@ -9,12 +9,23 @@ from app.keyboards import main_kb
 from app.utils import create_payment_page, get_payment_status
 from datetime import datetime, timedelta
 from app.filters import IsSub, IsBlocked
+from typing import Optional, Tuple
 router = Router()
 
 
-async def process_subscription(tarif: str):
-    sub_start_date = datetime.utcnow()
-    sub_end_date = None
+
+async def process_subscription(current_sub_end_date: Optional[str], tarif: str) -> Tuple[str, str]:
+    # Определяем текущую дату и время
+    now = datetime.utcnow()
+
+    # Если текущая подписка активна, начинаем с текущей даты окончания подписки
+    if current_sub_end_date:
+        sub_start_date = datetime.strptime(current_sub_end_date, '%d-%m-%Y %H:%M:%S')
+        if sub_start_date < now:  # Если срок подписки истек, начинаем с текущего момента
+            sub_start_date = now
+    else:
+        sub_start_date = now
+
     # Определяем длительность подписки в зависимости от тарифа
     if tarif == "month":  # 1 месяц
         sub_end_date = sub_start_date + timedelta(days=30)
@@ -22,13 +33,15 @@ async def process_subscription(tarif: str):
         sub_end_date = sub_start_date + timedelta(days=90)
     elif tarif == "year":  # 1 год
         sub_end_date = sub_start_date + timedelta(days=365)
-    elif tarif == "sale":  # 2
-        pass
-        # sub_end_date = sub_start_date + timedelta(days=500)
+    elif tarif == "sale":  # Тариф без изменения срока
+        sub_end_date = sub_start_date
     else:
         raise ValueError(f"Неизвестный тариф: {tarif}")
+
+    # Преобразуем даты в строковый формат
     sub_start_date_str = sub_start_date.strftime('%d-%m-%Y %H:%M:%S')
     sub_end_date_str = sub_end_date.strftime('%d-%m-%Y %H:%M:%S')
+
     return sub_start_date_str, sub_end_date_str
 
 @router.callback_query(F.data == 'tarif_info')
@@ -99,8 +112,10 @@ async def get_pstatus(call: CallbackQuery):
         await call.message.answer('Ошибка при проведении платежа. Пожалуйста, попробуйте позднее.')
     if pstatus == 'success':
         await call.message.answer('Оплата прошла успешно.')
-        sub_start, sub_end = await process_subscription(tarif)
         async with AsyncSessionLocal() as session:
+            user_data = await funcs.get_user(session, int(uid))
+            sub_end_date = user_data.sub_end_date
+            sub_start, sub_end = await process_subscription(sub_end_date, tarif)
             subscription = await funcs.update_subscription(session, uid, tarif, sub_start, sub_end)
         if subscription:
             await call.message.answer('Добро пожаловать', reply_markup=main_kb.start_btns(True))

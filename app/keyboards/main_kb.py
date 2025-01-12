@@ -99,3 +99,9 @@ def adm_edit_user(user_id):
     kb_builder.button(text='Разблокировать', callback_data=f'adm_unblock_{user_id}')
     kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)
+
+def prolong_sub():
+    kb_builder = InlineKeyboardBuilder()
+    kb_builder.button(text='Продлить подписку', callback_data=f'prolong_sub_')
+    kb_builder.adjust(1)
+    return kb_builder.as_markup(resize_keyboard=True)

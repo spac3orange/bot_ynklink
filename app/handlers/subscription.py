@@ -33,4 +33,10 @@ async def sub_menu(call: CallbackQuery):
         answer_str = ('\n<b>Подписка:</b> Не активна'
                       f'\n<b>Дата начала подписки:</b> Нет'
                       f'\n<b>Дата окончания подписки:</b> Нет')
-    await call.message.answer(text=answer_str, parse_mode='HTML')
+    await call.message.answer(text=answer_str, parse_mode='HTML', reply_markup=main_kb.prolong_sub())
+
+
+@router.callback_query(F.data.startswith('prolong_sub_'))
+async def p_prol_sub(call: CallbackQuery):
+    await call.answer()
+    await call.message.answer('Выберите тариф:', reply_markup=main_kb.tarif_menu())
