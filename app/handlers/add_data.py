@@ -202,6 +202,49 @@ async def p_media(message: Message, state: FSMContext, album: list = None):
                              f'\nКомментарий: {sdata['comm']}', reply_markup=main_kb.confirm_data())
 
 
+@router.message(F.photo | F.video, states.AddData.media, IsBlocked())
+async def p_single_media(message: Message, state: FSMContext):
+    file_id = None
+    file_extension = None
+
+    # Определяем тип файла
+    if message.photo:
+        file_id = message.photo[-1].file_id
+    elif message.video:
+        file_id = message.video.file_id
+
+    if not file_id:
+        await message.answer('Ошибка. Пожалуйста, загрузите фото или видео файл.')
+        return
+
+    # Скачиваем файл
+    try:
+        file_info = await message.bot.get_file(file_id)
+        file_path = file_info.file_path
+        file_extension = os.path.splitext(file_path)[-1]  # Извлекаем расширение из пути
+        unique_name = f"{message.from_user.id}_{randint(1000, 9999)}{file_extension}"
+        file_path = os.path.join(media_folder, unique_name)
+
+        await message.bot.download_file(file_info.file_path, destination=file_path)
+
+        # Сохраняем путь к файлу в состоянии
+        await state.update_data(media=[file_path])
+
+        await message.answer('Медиа файл успешно сохранён.')
+    except Exception as e:
+        print(f"Ошибка при скачивании файла: {e}")
+        await message.answer('Ошибка при обработке файла. Попробуйте снова.')
+
+    # Дополнительная обработка, например, отправка предпросмотра
+    sdata = await state.get_data()
+    await message.answer(f'\nНомер телефона: {sdata["number"]}'
+                         f'\nГород: {sdata["city"]}'
+                         f'\nНомер документа: {sdata["doc"]}'
+                         f'\nФамилия и/или имя: {sdata["name"]}'
+                         f'\nКомментарий: {sdata["comm"]}', reply_markup=main_kb.confirm_data())
+
+
+
 @router.message(states.AddData.media)
 async def p_nomedia(message: Message, state: FSMContext):
     media = message.text
