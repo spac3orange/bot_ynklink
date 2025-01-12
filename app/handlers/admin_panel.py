@@ -120,12 +120,12 @@ async def p_adm_users(call: CallbackQuery):
             u_sub = u.subscription
             u_substart = u.sub_start_date
             u_subend = u.sub_end_date
-            adm_message = (f'\nTG ID: {uid} '
-                           f'\nUsername: {uname}'
-                           f'\nПодписка: {u_sub}'
-                           f'\nНачало подписки: {u_substart}'
-                           f'\nКонец подписки: {u_subend}')
-            await call.message.answer(adm_message, reply_markup=main_kb.adm_edit_user(uid))
+            adm_message = (f'\n<b>TG ID:</b> {uid} '
+                           f'\n<b>Username:</b> {uname}'
+                           f'\n<b>Подписка:</b> {u_sub}'
+                           f'\n<b>Начало подписки:</b> {u_substart}'
+                           f'\n<b>Конец подписки:</b> {u_subend}')
+            await call.message.answer(adm_message, reply_markup=main_kb.adm_edit_user(uid), parse_mode='HTML')
     else:
         await call.message.answer('Пользователи не найдены.')
 
@@ -139,11 +139,11 @@ async def p_adm_get_user_data(call: CallbackQuery):
     if user_data:
         for d in user_data:
             media = False
-            adm_message = (f'\n\nНомер телефона: {d.number}'
-                           f'\nГород: {d.city}'
-                           f'\nНомер документа: {d.document}'
-                           f'\nФамилия и/или имя: {d.name}'
-                           f'\nКомментарий: {d.comment}')
+            adm_message = (f'\n\n<b>Номер телефона:</b> {d.number}'
+                           f'\n<b>Город:</b> {d.city}'
+                           f'\n<b>Номер документа:</b> {d.document}'
+                           f'\n<b>Фамилия и/или имя:</b> {d.name}'
+                           f'\n<b>Комментарий:</b> {d.comment}')
             if isinstance(d.media, list) and d.media:
                 media = True
                 album_builder = MediaGroupBuilder()
@@ -154,9 +154,9 @@ async def p_adm_get_user_data(call: CallbackQuery):
                         album_builder.add_photo(media=FSInputFile(m))
             if media:
                 await call.message.answer_media_group(album_builder.build())
-                await call.message.answer(adm_message)
+                await call.message.answer(adm_message, parse_mode='HTML')
             else:
-                await call.message.answer(adm_message)
+                await call.message.answer(adm_message, parse_mode='HTML')
             await asyncio.sleep(1)
     else:
         await call.message.answer('Данные не найдены.')
