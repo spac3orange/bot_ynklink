@@ -30,7 +30,8 @@ class Scheduler:
 async def notify_users(users):
     for user in users:
         try:
-            await aiogram_bot.send_message(chat_id=user.id, text=f"Ваша подписка истекает {user.sub_end_date}. Продлите её!")
+            await aiogram_bot.send_message(chat_id=user.id, text=f"Ваша подписка истекает {user.sub_end_date}. Продлите её!",
+                                           reply_markup=main_kb.prolong_sub())
             logger.info(f"Notification sent to {user.id}")
         except Exception as e:
             logger.error(f"Error while sending notification to {user.id}: {e}")
