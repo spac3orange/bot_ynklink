@@ -234,14 +234,25 @@ async def p_single_media(message: Message, state: FSMContext):
     except Exception as e:
         print(f"Ошибка при скачивании файла: {e}")
         await message.answer('Ошибка при обработке файла. Попробуйте снова.')
+        return
 
     # Дополнительная обработка, например, отправка предпросмотра
     sdata = await state.get_data()
+
+    # Отправляем медиа в предпросмотр
+    for file_path in sdata["media"]:
+        if file_path.endswith(('.mp4', '.mkv', '.avi')):  # Проверяем, является ли файл видео
+            await message.answer_video(video=FSInputFile(file_path))
+        elif file_path.endswith(('.jpg', '.jpeg', '.png', '.gif')):  # Проверяем, является ли файл фото
+            await message.answer_photo(photo=FSInputFile(file_path))
+
+    # Отправляем текстовую информацию
     await message.answer(f'\nНомер телефона: {sdata["number"]}'
                          f'\nГород: {sdata["city"]}'
                          f'\nНомер документа: {sdata["doc"]}'
                          f'\nФамилия и/или имя: {sdata["name"]}'
-                         f'\nКомментарий: {sdata["comm"]}', reply_markup=main_kb.confirm_data())
+                         f'\nКомментарий: {sdata["comm"]}',
+                         reply_markup=main_kb.confirm_data())
 
 
 
