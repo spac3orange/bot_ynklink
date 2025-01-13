@@ -138,7 +138,7 @@ async def p_adm_users(call: CallbackQuery):
             u_substart = u.sub_start_date
             u_subend = u.sub_end_date
             adm_message = (f'\n<b>TG ID:</b> {uid} '
-                           f'\n<b>Username:</b> {uname}'
+                           f'\n<b>Username:</b> @{uname}'
                            f'\n<b>Подписка:</b> {u_sub}'
                            f'\n<b>Начало подписки:</b> {u_substart}'
                            f'\n<b>Конец подписки:</b> {u_subend}')
