@@ -1,7 +1,5 @@
-from datetime import datetime, timedelta
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from pydantic import with_config
 from app.core import logger, aiogram_bot
 from app.crud import AsyncSessionLocal, funcs
 from app.keyboards import main_kb

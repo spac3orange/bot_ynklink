@@ -1,8 +1,5 @@
 from aiogram.types import Message, CallbackQuery, FSInputFile
-from aiogram.filters import CommandStart, Command
 from aiogram import Router, F
-from aiogram.fsm.context import FSMContext
-from app.core.logger import logger
 from app.crud import funcs
 from app.crud import AsyncSessionLocal
 from app.keyboards import main_kb
@@ -15,18 +12,15 @@ router = Router()
 
 
 async def process_subscription(current_sub_end_date: Optional[str], tarif: str) -> Tuple[str, str]:
-    # Определяем текущую дату и время
     now = datetime.utcnow()
 
-    # Если текущая подписка активна, начинаем с текущей даты окончания подписки
     if current_sub_end_date:
         sub_start_date = datetime.strptime(current_sub_end_date, '%d-%m-%Y %H:%M:%S')
-        if sub_start_date < now:  # Если срок подписки истек, начинаем с текущего момента
+        if sub_start_date < now:
             sub_start_date = now
     else:
         sub_start_date = now
 
-    # Определяем длительность подписки в зависимости от тарифа
     if tarif == "month":  # 1 месяц
         sub_end_date = sub_start_date + timedelta(days=30)
     elif tarif == "quart":  # 3 месяца
@@ -38,7 +32,6 @@ async def process_subscription(current_sub_end_date: Optional[str], tarif: str) 
     else:
         raise ValueError(f"Неизвестный тариф: {tarif}")
 
-    # Преобразуем даты в строковый формат
     sub_start_date_str = sub_start_date.strftime('%d-%m-%Y %H:%M:%S')
     sub_end_date_str = sub_end_date.strftime('%d-%m-%Y %H:%M:%S')
 

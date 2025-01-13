@@ -4,14 +4,12 @@ from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-from pydantic import with_config
 
 from app.crud import AsyncSessionLocal, funcs, prepare_jsonb_data
 from app.keyboards import main_kb
 from app.states import states
 from app.filters import IsAdmin
 from app.core import logger, aiogram_bot
-from datetime import datetime
 import magic
 
 router = Router()
@@ -24,11 +22,8 @@ from datetime import datetime, timedelta
 
 async def add_days_to_date(sub_end_date: str, days: int) -> str:
     try:
-        # Преобразуем строку даты в объект datetime
         end_date = datetime.strptime(sub_end_date, "%d-%m-%Y %H:%M:%S")
-        # Добавляем дни
         new_end_date = end_date + timedelta(days=days)
-        # Преобразуем новую дату обратно в строку
         return new_end_date.strftime("%d-%m-%Y %H:%M:%S")
     except ValueError as e:
         raise ValueError(f"Неверный формат даты: {sub_end_date}. Ожидаемый формат: '%d-%m-%Y %H:%M:%S'. Ошибка: {e}")

@@ -2,12 +2,8 @@ import asyncio
 from curses.ascii import isdigit
 
 from aiogram.types import Message, CallbackQuery, FSInputFile
-from aiogram.filters import CommandStart, Command
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-from sqlalchemy.util import await_only
-from aiogram.utils.media_group import MediaGroupBuilder
-from app.core.logger import logger
 from app.crud import funcs
 from app.crud import AsyncSessionLocal
 from app.states import states

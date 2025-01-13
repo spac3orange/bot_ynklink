@@ -5,17 +5,8 @@ from app.crud.session import  Base
 
 
 def prepare_jsonb_data(data):
-    """
-    Преобразует данные в формат JSONB для записи в столбец media.
-
-    :param data: Данные для преобразования (например, список, словарь).
-    :return: JSON-совместимая структура.
-    :raises ValueError: Если данные не могут быть сериализованы в JSON.
-    """
     try:
-        # Убедимся, что данные можно сериализовать в JSON
         json_data = json.dumps(data)
-        # Десериализуем обратно для обеспечения совместимости с JSONB
         return json.loads(json_data)
     except (TypeError, ValueError) as e:
         raise ValueError(f"Невозможно преобразовать данные в JSONB: {e}")

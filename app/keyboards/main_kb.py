@@ -1,5 +1,4 @@
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardBuilder
-from app.core import config_aiogram
 
 
 def start_btns(sub: bool = False, admin = False):

@@ -3,9 +3,6 @@ import hashlib
 import uuid
 import xml.etree.ElementTree as ET
 from environs import Env
-from urllib.parse import urlparse
-import random
-import string
 
 
 env = Env()

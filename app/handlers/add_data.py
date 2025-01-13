@@ -207,7 +207,6 @@ async def p_single_media(message: Message, state: FSMContext):
     file_id = None
     file_extension = None
 
-    # Определяем тип файла
     if message.photo:
         file_id = message.photo[-1].file_id
     elif message.video:
@@ -217,7 +216,6 @@ async def p_single_media(message: Message, state: FSMContext):
         await message.answer('Ошибка. Пожалуйста, загрузите фото или видео файл.')
         return
 
-    # Скачиваем файл
     try:
         file_info = await message.bot.get_file(file_id)
         file_path = file_info.file_path
@@ -227,7 +225,6 @@ async def p_single_media(message: Message, state: FSMContext):
 
         await message.bot.download_file(file_info.file_path, destination=file_path)
 
-        # Сохраняем путь к файлу в состоянии
         await state.update_data(media=[file_path])
 
         await message.answer('Медиа файл успешно сохранён.')
@@ -236,10 +233,8 @@ async def p_single_media(message: Message, state: FSMContext):
         await message.answer('Ошибка при обработке файла. Попробуйте снова.')
         return
 
-    # Дополнительная обработка, например, отправка предпросмотра
     sdata = await state.get_data()
 
-    # Отправляем медиа в предпросмотр
     for file_path in sdata["media"]:
         if file_path.endswith(('.mp4', '.mkv', '.avi')):  # Проверяем, является ли файл видео
             await message.answer_video(video=FSInputFile(file_path))

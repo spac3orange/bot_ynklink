@@ -5,7 +5,6 @@ from typing import Optional, List, Union
 from sqlalchemy.orm.exc import NoResultFound
 from datetime import datetime, timedelta
 from sqlalchemy.future import select
-from sqlalchemy.sql.expression import update
 from sqlalchemy.exc import SQLAlchemyError
 
 async def get_all_users(session: AsyncSession):
