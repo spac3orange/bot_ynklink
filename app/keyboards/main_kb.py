@@ -15,7 +15,7 @@ def start_btns(sub: bool = False, admin = False):
         kb_builder.button(text='Панель администратора', callback_data='admin_panel')
     else:
         kb_builder.button(text='Тарифы', callback_data='tarif_info')
-    kb_builder.adjust(1)
+    kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)
 
 def tarif_menu():
