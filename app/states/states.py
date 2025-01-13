@@ -23,3 +23,6 @@ class AdmEditTar(StatesGroup):
 class AdmEditData(StatesGroup):
     field_num = State()
     new_data = State()
+
+class AdmProlSub(StatesGroup):
+    days = State()

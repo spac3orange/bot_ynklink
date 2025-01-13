@@ -95,6 +95,7 @@ def adm_edit_data(rec_id):
 def adm_edit_user(user_id):
     kb_builder = InlineKeyboardBuilder()
     kb_builder.button(text='Данные', callback_data=f'adm_get_data_{user_id}')
+    kb_builder.button(text='Подписка', callback_data=f'adm_edit_sub_{user_id}')
     kb_builder.button(text='Заблокировать', callback_data=f'adm_block_{user_id}')
     kb_builder.button(text='Разблокировать', callback_data=f'adm_unblock_{user_id}')
     kb_builder.adjust(2)
@@ -103,5 +104,13 @@ def adm_edit_user(user_id):
 def prolong_sub():
     kb_builder = InlineKeyboardBuilder()
     kb_builder.button(text='Продлить подписку', callback_data=f'prolong_sub_')
+    kb_builder.adjust(1)
+    return kb_builder.as_markup(resize_keyboard=True)
+
+
+def adm_sub_menu(target_uid):
+    kb_builder = InlineKeyboardBuilder()
+    kb_builder.button(text='Продлить подписку', callback_data=f'adm_prolong_sub_{target_uid}')
+    kb_builder.button(text='Аннулировать подписку', callback_data=f'adm_delete_sub_{target_uid}')
     kb_builder.adjust(1)
     return kb_builder.as_markup(resize_keyboard=True)

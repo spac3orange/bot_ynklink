@@ -11,12 +11,29 @@ from app.keyboards import main_kb
 from app.states import states
 from app.filters import IsAdmin
 from app.core import logger, aiogram_bot
+from datetime import datetime
 import magic
 
 router = Router()
 router.message.filter(
     IsAdmin()
 )
+
+
+from datetime import datetime, timedelta
+
+async def add_days_to_date(sub_end_date: str, days: int) -> str:
+    try:
+        # Преобразуем строку даты в объект datetime
+        end_date = datetime.strptime(sub_end_date, "%d-%m-%Y %H:%M:%S")
+        # Добавляем дни
+        new_end_date = end_date + timedelta(days=days)
+        # Преобразуем новую дату обратно в строку
+        return new_end_date.strftime("%d-%m-%Y %H:%M:%S")
+    except ValueError as e:
+        raise ValueError(f"Неверный формат даты: {sub_end_date}. Ожидаемый формат: '%d-%m-%Y %H:%M:%S'. Ошибка: {e}")
+
+
 
 async def get_mime_type(file_path):
     mime = magic.Magic(mime=True)
@@ -177,3 +194,47 @@ async def p_adm_unblockuser(call: CallbackQuery):
     async with AsyncSessionLocal() as session:
         await funcs.update_subscription(session, uid, None, None, None)
     await call.message.answer('Пользователь разблокирован.')
+
+
+@router.callback_query(F.data.startswith('adm_edit_sub_'))
+async def p_edit_sub(call: CallbackQuery):
+    await call.answer()
+    uid = int(call.data.split('_')[-1])
+    await call.message.answer('Выберите действие:', reply_markup=main_kb.adm_sub_menu(uid))
+
+
+@router.callback_query(F.data.startswith('adm_prolong_sub_'))
+async def p_adm_prol_sub(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    uid = int(call.data.split('_')[-1])
+    await call.message.answer('Введите кол-во дней, которые будут прибавлены: ')
+    await state.set_state(states.AdmProlSub.days)
+    await state.update_data(target_uid=uid)
+
+@router.message(states.AdmProlSub.days)
+async def p_add_days(message: Message, state: FSMContext):
+    days = int(message.text)
+    sdata = await state.get_data()
+    target_uid = int(sdata['target_uid'])
+    async with AsyncSessionLocal() as session:
+        user_data = await funcs.get_user(session, target_uid)
+        cur_sub_end = user_data.sub_end_date
+        cur_sub_start = user_data.sub_start_date
+        if cur_sub_end:
+            new_sub_end = await add_days_to_date(cur_sub_end, days)
+            await funcs.update_subscription(session, target_uid, 'special', cur_sub_start, new_sub_end )
+        else:
+            current_time = datetime.utcnow()
+            new_sub_end = await add_days_to_date(current_time.strftime("%d-%m-%Y %H:%M:%S"), days)
+            await funcs.update_subscription(session, target_uid, 'special', current_time.strftime("%d-%m-%Y %H:%M:%S"), new_sub_end)
+    await message.answer(f'Подписка для пользователя {target_uid} продлена на {days} дней.')
+
+
+
+@router.callback_query(F.data.startswith('adm_delete_sub_'))
+async def p_adm_del_sub(call: CallbackQuery):
+    await call.answer()
+    uid = int(call.data.split('_')[-1])
+    async with AsyncSessionLocal() as session:
+        await funcs.update_subscription(session, uid, None, None, None)
+    await call.message.answer(f'Подписка пользователя {uid} аннулирована.')
