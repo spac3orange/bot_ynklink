@@ -55,3 +55,7 @@ async def process_paymentinfo(message: Message, state: FSMContext):
             await message.answer(p, parse_mode='HTML', disable_web_page_preview=True)
 
 
+@router.message(Command(commands='support'))
+async def process_support(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer('<b>Тех.Поддержка:</b> @None', parse_mode='HTML')
