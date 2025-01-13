@@ -228,6 +228,7 @@ async def p_add_days(message: Message, state: FSMContext):
             new_sub_end = await add_days_to_date(current_time.strftime("%d-%m-%Y %H:%M:%S"), days)
             await funcs.update_subscription(session, target_uid, 'special', current_time.strftime("%d-%m-%Y %H:%M:%S"), new_sub_end)
     await message.answer(f'Подписка для пользователя {target_uid} продлена на {days} дней.')
+    await state.clear()
 
 
 
