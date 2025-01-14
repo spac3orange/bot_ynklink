@@ -61,7 +61,7 @@ async def send_data_message(message, extracted_data):
                 await message.answer(response_text, parse_mode='HTML')
                 await asyncio.sleep(1)
             else:
-                await message.answer("Нет данных для отображения.", parse_mode='HTML')
+                await message.answer("Данные не найдены.", parse_mode='HTML')
 
 
 @router.callback_query(F.data == 'get_data', IsSub(), IsBlocked())
