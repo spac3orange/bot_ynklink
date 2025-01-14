@@ -53,13 +53,12 @@ async def send_data_message(message, extracted_data):
             #             media.add_photo(media=FSInputFile(m))
             # if media:
             #     await message.answer_media_group(media.build())
-            await message.answer(f'\nНомер телефона: {d.number}'
-                                 f'\nГород: {d.city}'
-                                 f'\nНомер документа: {d.document}'
-                                 f'\nФамилия и/или имя: {d.name}'
-                                 f'\nКомментарий: {d.comment}')
+            await message.answer(f'\n<b>Номер телефона:</b> {d.number}'
+                                 f'\n<b>Город:</b> {d.city}'
+                                 f'\n<b>Номер документа:</b> {d.document}'
+                                 f'\n<b>Фамилия и/или имя:</b> {d.name}'
+                                 f'\n<b>Комментарий:</b> {d.comment}', parse_mode='HTML')
             await asyncio.sleep(1)
-        print(extracted_data)
 
 
 @router.callback_query(F.data == 'get_data', IsSub(), IsBlocked())
