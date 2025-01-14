@@ -56,16 +56,20 @@ async def tar_choose(call: CallbackQuery):
                   'year': sorted_tarifs[2].price,
                   'sale': sorted_tarifs[3].price}
     if tarif == 'month':
-        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['month']} тг.',
+        await call.message.answer(f'Доступ к базе данных QTizim на 1 месяц.'
+                                  f'\n<b>Стоимость:</b> {tarif_dict['month']} тг.',
                                   reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'quart':
-        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['quart']} тг.',
+        await call.message.answer(f'Доступ к базе данных QTizim на 3 месяца'
+                                  f'\n<b>Стоимость:</b> {tarif_dict['quart']} тг.',
                                   reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'year':
-        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['year']} тг.',
+        await call.message.answer(f'Доступ к базе данных QTizim на 1 год'
+                                  f'\n<b>Стоимость:</b> {tarif_dict['year']} тг.',
                                   reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'sale':
-        await call.message.answer(f'\n<b>Стоимость:</b> {tarif_dict['sale']} тг.',
+        await call.message.answer(f'Доступ к базе данных QTizim на X'
+                                  f'\n<b>Стоимость:</b> {tarif_dict['sale']} тг.',
                                   reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
 
 
