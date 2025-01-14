@@ -86,6 +86,8 @@ async def p_input_phone(message: Message, state: FSMContext):
     print(number)
     print(number.isdigit())
     if number.isdigit():
+        if not number.startswith('+'):
+            number = f"+{number}"
         async with AsyncSessionLocal() as session:
             extracted_data = await funcs.get_user_data_by_number_or_document(session, number=number)
         if extracted_data:
