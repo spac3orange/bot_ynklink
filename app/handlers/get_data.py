@@ -40,25 +40,28 @@ async def is_photo(file_path):
     mime_type = await get_mime_type(file_path)
     return mime_type.startswith('image')
 
+
 async def send_data_message(message, extracted_data):
     if extracted_data:
         for d in extracted_data:
-            # media = None
-            # if isinstance(d.media, list) and d.media:
-            #     media = MediaGroupBuilder()
-            #     for m in d.media:
-            #         if await is_video(m):
-            #             media.add_video(media=FSInputFile(m))
-            #         elif await is_photo(m):
-            #             media.add_photo(media=FSInputFile(m))
-            # if media:
-            #     await message.answer_media_group(media.build())
-            await message.answer(f'\n<b>Номер телефона:</b> {d.number}'
-                                 f'\n<b>Город:</b> {d.city}'
-                                 f'\n<b>Номер документа:</b> {d.document}'
-                                 f'\n<b>Фамилия и/или имя:</b> {d.name}'
-                                 f'\n<b>Комментарий:</b> {d.comment}', parse_mode='HTML')
-            await asyncio.sleep(1)
+            response_parts = []
+            if d.number and d.number not in ("-", "нет"):
+                response_parts.append(f'<b>Номер телефона:</b> {d.number}')
+            if d.city and d.city not in ("-", "нет"):
+                response_parts.append(f'<b>Город:</b> {d.city}')
+            if d.document and d.document not in ("-", "нет"):
+                response_parts.append(f'<b>Номер документа:</b> {d.document}')
+            if d.name and d.name not in ("-", "нет"):
+                response_parts.append(f'<b>Фамилия и/или имя:</b> {d.name}')
+            if d.comment and d.comment not in ("-", "нет"):
+                response_parts.append(f'<b>Комментарий:</b> {d.comment}')
+
+            if response_parts:
+                response_text = '\n'.join(response_parts)
+                await message.answer(response_text, parse_mode='HTML')
+                await asyncio.sleep(1)
+            else:
+                await message.answer("Нет данных для отображения.", parse_mode='HTML')
 
 
 @router.callback_query(F.data == 'get_data', IsSub(), IsBlocked())
