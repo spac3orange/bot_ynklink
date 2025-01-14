@@ -1,4 +1,3 @@
-from curses.ascii import isdigit
 
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.utils.media_group import MediaGroupBuilder
@@ -32,6 +31,8 @@ def format_phone_number(number: str) -> str:
     return formatted_number
 
 def is_valid_document(doc: str) -> bool:
+    if doc.lower() == "нет":
+        return True
     return bool(re.match(r'^\d+$', doc))
 
 
@@ -106,14 +107,16 @@ async def p_number(message: Message, state: FSMContext):
         await message.answer("Номер телефона некорректен. Пожалуйста, введите корректный номер.")
         return
     await state.update_data(number=format_number)
-    await message.answer('Введите город:')
+    await message.answer('Введите город:'
+                         '\n*Не обязательно, для продолжения введите "Нет"')
     await state.set_state(states.AddData.city)
 
 @router.message(states.AddData.city)
 async def p_city(message: Message, state: FSMContext):
     city = message.text
     await state.update_data(city=city)
-    await message.answer('Введите номер документа:')
+    await message.answer('Введите номер документа:'
+                         '\n**Не обязательно, для продолжения введите "Нет"')
     await state.set_state(states.AddData.document)
 
 @router.message(states.AddData.document)
@@ -121,7 +124,8 @@ async def p_doc(message: Message, state: FSMContext):
     doc = message.text
     if is_valid_document(doc):
         await state.update_data(doc=doc)
-        await message.answer('Введите фамилию и/или имя:')
+        await message.answer('Введите фамилию и/или имя:'
+                             '\n*Не обязательно, для продолжения введите "Нет"')
         await state.set_state(states.AddData.name)
     else:
         await message.answer("Номер документа должен содержать только цифры. Пожалуйста, введите корректный номер.")
@@ -206,6 +210,8 @@ async def p_media(message: Message, state: FSMContext, album: list = None):
 async def p_single_media(message: Message, state: FSMContext):
     file_id = None
     file_extension = None
+    if message.media_group_id:
+        return
 
     if message.photo:
         file_id = message.photo[-1].file_id
@@ -328,7 +334,7 @@ async def adm_edit_data(call: CallbackQuery, state: FSMContext):
 @router.message(states.AdmEditData.field_num)
 async def p_edit_data(message: Message, state: FSMContext):
     field = message.text
-    if isdigit(field):
+    if field.isdigit():
         await state.update_data(field=field)
         await message.answer('Введите новую информацию: ')
         await state.set_state(states.AdmEditData.new_data)

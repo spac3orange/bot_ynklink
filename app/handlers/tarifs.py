@@ -88,7 +88,7 @@ async def process_buy(call: CallbackQuery):
     if ppage:
         link = f'<a href="{ppage}">Freedom Pay</a>'
         await call.message.answer(f'Ссылка для оплаты: {link}'
-                                  f'\n\nПосле оплаты, пожалуйста нажмите кнопку ниже для првоерки статуса платежа.'
+                                  f'\n\nПосле оплаты, пожалуйста нажмите кнопку ниже для проверки статуса платежа.'
                                   f' Когда платеж будет обработан, вы будете перенаправлены на главную страницу.',
                                   reply_markup=main_kb.check_payment(pid, tar_name), parse_mode='HTML')
     else:
@@ -115,7 +115,7 @@ async def get_pstatus(call: CallbackQuery):
             sub_start, sub_end = await process_subscription(sub_end_date, tarif)
             subscription = await funcs.update_subscription(session, uid, tarif, sub_start, sub_end)
         if subscription:
-            await call.message.answer('Добро пожаловать', reply_markup=main_kb.start_btns(True))
+            await call.message.answer('Добро пожаловать в QTizim!', reply_markup=main_kb.start_btns(True))
         else:
             await call.message.answer('Ошибка при обновлении данных. Пожалуйста, обратитесь в Тех. Поддержку.')
     else:

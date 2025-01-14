@@ -1,5 +1,4 @@
 import asyncio
-from curses.ascii import isdigit
 
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram import Router, F
@@ -84,7 +83,7 @@ async def p_input_phone(message: Message, state: FSMContext):
         await message.answer("Номер телефона некорректен. Пожалуйста, введите корректный номер.")
         return
     await state.clear()
-    if isdigit(number):
+    if number.isdigit():
         async with AsyncSessionLocal() as session:
             extracted_data = await funcs.get_user_data_by_number_or_document(session, number=number)
         if extracted_data:
@@ -109,7 +108,7 @@ async def p_input_doc(message: Message, state: FSMContext):
     number = message.text
     if is_valid_document(number):
         await state.clear()
-        if isdigit(number):
+        if number.isdigit():
             async with AsyncSessionLocal() as session:
                 extracted_data = await funcs.get_user_data_by_number_or_document(session, document=number)
             if extracted_data:
