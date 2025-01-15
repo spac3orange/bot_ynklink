@@ -87,7 +87,7 @@ async def p_input_phone(message: Message, state: FSMContext):
     await state.clear()
     print(number)
     print(number.isdigit())
-    if number.isdigit():
+    if number[1:].isdigit():
         if not number.startswith('+'):
             number = f"+{number}"
         async with AsyncSessionLocal() as session:
