@@ -87,7 +87,7 @@ async def p_get_tar(call: CallbackQuery):
                    f'\n1. Месячный: {sorted_tarifs[0].price} тг.'
                    f'\n2. Квартальный: {sorted_tarifs[1].price} тг.'
                    f'\n3. Годовой: {sorted_tarifs[2].price} тг.'
-                   f'\n4. Акционный: {sorted_tarifs[3].price} тг.'
+                   f'\n4. Акционный: {sorted_tarifs[3].price} тг. Дней: {sorted_tarifs[3].days}'
                    )
     await call.message.answer(tarifs_text, reply_markup=main_kb.admin_edit_tarifs())
 
