@@ -285,6 +285,8 @@ async def search_byuname(call: CallbackQuery, state: FSMContext):
 async def p_search_byuname(message: Message, state: FSMContext):
     target_uname = message.text
     async with AsyncSessionLocal() as session:
+        if target_uname.startswith('@'):
+            target_uname = target_uname.lstrip('@')
         udata = await funcs.get_user_by_name(session, target_uname)
         if udata:
             uid = udata.id
