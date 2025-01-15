@@ -103,10 +103,39 @@ async def p_tar_num(call: CallbackQuery, state: FSMContext):
 async def p_edit_tar(message: Message, state: FSMContext):
     tar_data = message.text.split(' ')
     tar_num, tar_price = int(tar_data[0]), int(tar_data[1])
-    async with AsyncSessionLocal() as session:
-        await funcs.update_tarif_price(tar_num, tar_price, session)
-    await message.answer('Стоимость обновлена.')
+    if tar_num == 4:
+        await message.answer('Введите кол-во дней: ')
+        await state.set_state(states.AdmEditTar.days)
+        await state.update_data(tar_num=4, tar_price=tar_price)
+    else:
+        async with AsyncSessionLocal() as session:
+            await funcs.update_tarif_price(tar_num, tar_price, session)
+        await message.answer('Стоимость обновлена.')
+        await state.clear()
+
+        async with AsyncSessionLocal() as session:
+            tarifs = await funcs.get_all_tarifs(session)
+            sorted_tarifs = sorted(tarifs, key=lambda tarif: tarif.record_id)
+        tarifs_text = ('Тарифы:'
+                       f'\n1. Месячный: {sorted_tarifs[0].price} тг.'
+                       f'\n2. Квартальный: {sorted_tarifs[1].price} тг.'
+                       f'\n3. Годовой: {sorted_tarifs[2].price} тг.'
+                       f'\n4. Акционный: {sorted_tarifs[3].price} тг. Дней: {sorted_tarifs[3].days}'
+                       )
+        await message.answer(tarifs_text, reply_markup=main_kb.admin_edit_tarifs())
+
+
+@router.message(states.AdmEditTar.days)
+async def p_edit_tar_4(message: Message, state: FSMContext):
+    days = message.text
+    sdata = await state.get_data()
+    tar_num = int(sdata['tar_num'])
+    tar_price = int(sdata['tar_price'])
+    tar_days = int(days)
     await state.clear()
+    async with AsyncSessionLocal() as session:
+        await funcs.update_tarif(session, record_id=tar_num, price=tar_price, days=tar_days)
+    await message.answer('Стоимость обновлена.')
 
     async with AsyncSessionLocal() as session:
         tarifs = await funcs.get_all_tarifs(session)
@@ -115,7 +144,7 @@ async def p_edit_tar(message: Message, state: FSMContext):
                    f'\n1. Месячный: {sorted_tarifs[0].price} тг.'
                    f'\n2. Квартальный: {sorted_tarifs[1].price} тг.'
                    f'\n3. Годовой: {sorted_tarifs[2].price} тг.'
-                   f'\n4. Акционный: {sorted_tarifs[3].price} тг.'
+                   f'\n4. Акционный: {sorted_tarifs[3].price} тг. Дней: {sorted_tarifs[3].days}'
                    )
     await message.answer(tarifs_text, reply_markup=main_kb.admin_edit_tarifs())
 

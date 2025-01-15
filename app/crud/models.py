@@ -56,3 +56,4 @@ class Tarifs(Base):
 
     record_id = Column(Integer, primary_key=True, autoincrement=True)
     price = Column(Integer)
+    days = Column(Integer)

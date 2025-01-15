@@ -14,10 +14,10 @@ async def initialize_database(engine):
             await conn.execute(
                 Tarifs.__table__.insert(),
                 [
-                    {"price": 2500},
-                    {"price": 7125},
-                    {"price": 27000},
-                    {"price": 50000},
+                    {"price": 2500, "days": 30},
+                    {"price": 7125, "days": 90},
+                    {"price": 27000, "days": 365},
+                    {"price": 50000, "days": 0},
                 ]
             )
             logger.info("Default tarifs inserted into the database.")

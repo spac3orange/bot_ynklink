@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 import os
+from sqlalchemy import update
 
 
 async def delete_media_files(media_list: list[str]) -> None:
@@ -550,4 +551,28 @@ async def delete_temp_data(
     except Exception as e:
         logger.error(f"Failed to delete record_id: {record_id} from TempData. Error: {e}")
         await session.rollback()
+        raise
+
+
+async def update_tarif(session: AsyncSession,
+                       record_id: int,
+                       price: int,
+                       days: int) -> None:
+    try:
+        stmt = (
+            update(Tarifs)
+            .where(Tarifs.record_id == record_id)
+            .values(price=price, days=days)
+            .execution_options(synchronize_session="fetch")
+        )
+        result = await session.execute(stmt)
+
+        if result.rowcount == 0:
+            raise NoResultFound(f"Tarif with record_id {record_id} not found.")
+
+        await session.commit()
+        print(f"Tarif with record_id {record_id} updated successfully.")
+    except Exception as e:
+        await session.rollback()
+        print(f"Failed to update tarif with record_id {record_id}. Error: {e}")
         raise

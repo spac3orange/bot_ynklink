@@ -13,7 +13,9 @@ router = Router()
 
 async def process_subscription(current_sub_end_date: Optional[str], tarif: str) -> Tuple[str, str]:
     now = datetime.utcnow()
-
+    async with AsyncSessionLocal() as session:
+        tarifs = await funcs.get_all_tarifs(session)
+        sorted_tarifs = sorted(tarifs, key=lambda tar: tar.record_id)
     if current_sub_end_date:
         sub_start_date = datetime.strptime(current_sub_end_date, '%d-%m-%Y %H:%M:%S')
         if sub_start_date < now:
@@ -28,7 +30,7 @@ async def process_subscription(current_sub_end_date: Optional[str], tarif: str) 
     elif tarif == "year":  # 1 год
         sub_end_date = sub_start_date + timedelta(days=365)
     elif tarif == "sale":  # Тариф без изменения срока
-        sub_end_date = sub_start_date
+        sub_end_date = sub_start_date + timedelta(days=sorted_tarifs[3].days)
     else:
         raise ValueError(f"Неизвестный тариф: {tarif}")
 
@@ -68,7 +70,7 @@ async def tar_choose(call: CallbackQuery):
                                   f'\n<b>Стоимость:</b> {tarif_dict['year']} тг.',
                                   reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
     if tarif == 'sale':
-        await call.message.answer(f'Доступ к базе данных QTizim на X'
+        await call.message.answer(f'Доступ к базе данных QTizim на {sorted_tarifs[3].days} дней.'
                                   f'\n<b>Стоимость:</b> {tarif_dict['sale']} тг.',
                                   reply_markup=main_kb.buy_tarif(tarif), parse_mode='HTML')
 

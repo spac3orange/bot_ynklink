@@ -19,6 +19,7 @@ class AdmSend(StatesGroup):
 
 class AdmEditTar(StatesGroup):
     tar_num = State()
+    days = State()
 
 class AdmEditData(StatesGroup):
     field_num = State()
