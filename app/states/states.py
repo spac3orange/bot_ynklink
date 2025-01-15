@@ -26,3 +26,7 @@ class AdmEditData(StatesGroup):
 
 class AdmProlSub(StatesGroup):
     days = State()
+
+class AdmSearchuser(StatesGroup):
+    input_id = State()
+    input_uname = State()

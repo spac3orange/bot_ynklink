@@ -68,6 +68,7 @@ def admin_panel():
     kb_builder.button(text='Рассылка', callback_data=f'adm_send_msg')
     kb_builder.button(text='Пользователи', callback_data=f'adm_users_panel')
     kb_builder.button(text='Тарифы', callback_data=f'adm_tarifs')
+    kb_builder.button(text='Поиск пользователя', callback_data=f'adm_search_user')
     kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)
 
@@ -112,4 +113,12 @@ def adm_sub_menu(target_uid):
     kb_builder.button(text='Продлить подписку', callback_data=f'adm_prolong_sub_{target_uid}')
     kb_builder.button(text='Аннулировать подписку', callback_data=f'adm_delete_sub_{target_uid}')
     kb_builder.adjust(1)
+    return kb_builder.as_markup(resize_keyboard=True)
+
+
+def adm_search_menu():
+    kb_builder = InlineKeyboardBuilder()
+    kb_builder.button(text='Поиск по id', callback_data=f'adm_search_byid')
+    kb_builder.button(text='Поиск по username', callback_data=f'adm_search_byuname')
+    kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)

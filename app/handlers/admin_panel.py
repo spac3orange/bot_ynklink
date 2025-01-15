@@ -234,3 +234,70 @@ async def p_adm_del_sub(call: CallbackQuery):
     async with AsyncSessionLocal() as session:
         await funcs.update_subscription(session, uid, None, None, None)
     await call.message.answer(f'Подписка пользователя {uid} аннулирована.')
+
+
+@router.callback_query(F.data == 'adm_search_user')
+async def p_search_user(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await call.message.answer('Выберите способ поиска:', reply_markup=main_kb.adm_search_menu())
+
+
+@router.callback_query(F.data == 'adm_search_byid')
+async def search_byid(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await call.message.answer('Введите id пользователя: ')
+    await state.set_state(states.AdmSearchuser.input_id)
+
+
+@router.message(states.AdmSearchuser.input_id)
+async def p_search_byid(message: Message, state: FSMContext):
+    target_id = message.text
+    if target_id.isdigit():
+        async with AsyncSessionLocal() as session:
+            udata = await funcs.get_user(session, int(target_id))
+            if udata:
+                uid = udata.id
+                uname = udata.name
+                u_sub = udata.subscription
+                u_substart = udata.sub_start_date
+                u_subend = udata.sub_end_date
+                adm_message = (f'\n<b>TG ID:</b> {uid} '
+                               f'\n<b>Username:</b> @{uname}'
+                               f'\n<b>Подписка:</b> {u_sub}'
+                               f'\n<b>Начало подписки:</b> {u_substart}'
+                               f'\n<b>Конец подписки:</b> {u_subend}')
+                await message.answer(adm_message, reply_markup=main_kb.adm_edit_user(uid), parse_mode='HTML')
+            else:
+                await message.answer('Пользователь не найден.')
+    else:
+        await message.answer('Ошибка. ID должен состоять из цифр.')
+    await state.clear()
+
+
+@router.callback_query(F.data == 'adm_search_byuname')
+async def search_byuname(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await call.message.answer('Введите username пользователя: ')
+    await state.set_state(states.AdmSearchuser.input_uname)
+
+
+@router.message(states.AdmSearchuser.input_uname)
+async def p_search_byuname(message: Message, state: FSMContext):
+    target_uname = message.text
+    async with AsyncSessionLocal() as session:
+        udata = await funcs.get_user_by_name(session, target_uname)
+        if udata:
+            uid = udata.id
+            uname = udata.name
+            u_sub = udata.subscription
+            u_substart = udata.sub_start_date
+            u_subend = udata.sub_end_date
+            adm_message = (f'\n<b>TG ID:</b> {uid} '
+                           f'\n<b>Username:</b> @{uname}'
+                           f'\n<b>Подписка:</b> {u_sub}'
+                           f'\n<b>Начало подписки:</b> {u_substart}'
+                           f'\n<b>Конец подписки:</b> {u_subend}')
+            await message.answer(adm_message, reply_markup=main_kb.adm_edit_user(uid), parse_mode='HTML')
+        else:
+            await message.answer('Пользователь не найден.')
+    await state.clear()

@@ -3,11 +3,13 @@ from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
+from pydantic import with_config
+
 from app.crud import AsyncSessionLocal, funcs, prepare_jsonb_data
 from app.keyboards import main_kb
 from app.middlewares import album_middleware
 from app.states import states
-from app.core import aiogram_bot
+from app.core import aiogram_bot, logger
 from app.utils import inform_admins
 from app.filters import IsSub, IsBlocked
 from random import randint
@@ -87,7 +89,6 @@ async def send_data(state_data: dict, from_uid: int):
         adm_message += f'\nСовпадений по номеру: {len(num_coinc)}'
 
     await inform_admins(message=adm_message, from_id=uid, album_builder=album_builder, record_id=record_id)
-
 
 
 
@@ -309,6 +310,8 @@ async def adm_decline_data(call: CallbackQuery):
     record_id = int(call.data.split('_')[-1])
     await call.answer()
     await call.message.answer('Данные удалены. Пользователь получит уведомление.')
+    async with AsyncSessionLocal() as session:
+        await funcs.delete_temp_data(session, record_id)
     await aiogram_bot.send_message(from_uid, 'Администратор отклонил ваши данные.')
 
 

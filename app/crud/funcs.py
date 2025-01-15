@@ -6,13 +6,27 @@ from sqlalchemy.orm.exc import NoResultFound
 from datetime import datetime, timedelta
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
+import os
+
+
+async def delete_media_files(media_list: list[str]) -> None:
+    for media_path in media_list:
+        try:
+            if os.path.exists(media_path):
+                os.remove(media_path)
+                logger.info(f"Deleted media file: {media_path}")
+            else:
+                logger.warning(f"Media file not found: {media_path}")
+        except Exception as e:
+            logger.error(f"Failed to delete media file: {media_path}. Error: {e}")
+
+
 
 async def get_all_users(session: AsyncSession):
     try:
-        # Формируем запрос для получения всех пользователей
-        stmt = select(User)  # Запрос для выборки всех пользователей
-        result = await session.execute(stmt)  # Выполняем запрос
-        users = result.scalars().all()  # Получаем все результаты (список объектов User)
+        stmt = select(User)
+        result = await session.execute(stmt)
+        users = result.scalars().all()
 
         return users
 
@@ -492,4 +506,48 @@ async def get_user_data_by_user_id(
 
     except Exception as e:
         logger.error(f"Error retrieving data from UserData table for user_id {user_id}: {e}")
+        raise
+
+
+async def get_user_by_name(session: AsyncSession, name: str) -> User | None:
+    logger.info(f"Fetching user with name: {name}")
+    try:
+        stmt = select(User).filter_by(name=name)
+        result = await session.execute(stmt)
+        user = result.scalars().first()
+        if user:
+            logger.info(f"User with name: {name} found")
+        else:
+            logger.warning(f"User with name: {name} not found")
+        return user
+    except Exception as e:
+        logger.error(f"Failed to fetch user with name: {name}. Error: {e}")
+        raise
+
+
+async def delete_temp_data(
+    session: AsyncSession,
+    record_id: int
+) -> None:
+    logger.info(f"Deleting record with record_id: {record_id} from TempData.")
+    try:
+        stmt = select(TempData).filter_by(record_id=record_id)
+        result = await session.execute(stmt)
+        temp_record = result.scalars().first()
+
+        if not temp_record:
+            logger.error(f"Record with record_id: {record_id} not found in TempData.")
+            raise NoResultFound(f"Record with record_id {record_id} not found in TempData.")
+
+        if temp_record.media:
+            media_list = temp_record.media if isinstance(temp_record.media, list) else []
+            await delete_media_files(media_list)
+
+        await session.delete(temp_record)
+
+        await session.commit()
+        logger.info(f"Successfully deleted record_id: {record_id} from TempData.")
+    except Exception as e:
+        logger.error(f"Failed to delete record_id: {record_id} from TempData. Error: {e}")
+        await session.rollback()
         raise
