@@ -42,7 +42,7 @@ def buy_tarif(tarif_name: str):
 def data_type():
     kb_builder = InlineKeyboardBuilder()
     kb_builder.button(text='Номер телефона', callback_data=f'get_data_by_num')
-    kb_builder.button(text='Номер документа', callback_data='get_data_by_doc')
+    # kb_builder.button(text='Номер документа', callback_data='get_data_by_doc')
     kb_builder.adjust(2)
     return kb_builder.as_markup(resize_keyboard=True)
 
