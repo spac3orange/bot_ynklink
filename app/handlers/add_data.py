@@ -108,7 +108,7 @@ async def add_data(call: CallbackQuery, state: FSMContext):
 async def p_number(message: Message, state: FSMContext):
     number = message.text
     format_number = format_phone_number(number)
-    if len(format_number) < 12:
+    if len(format_number) < 10:
         await message.answer("Номер телефона некорректен. Пожалуйста, введите корректный номер.")
         return
     await state.update_data(number=format_number)
