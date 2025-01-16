@@ -99,6 +99,8 @@ async def p_input_phone(message: Message, state: FSMContext):
             await message.answer('Выберите способ поиска:', reply_markup=main_kb.data_type())
         else:
             await message.answer('Данные по вашему запросу в QTizim не найдены')
+            await asyncio.sleep(1)
+            await message.answer('Выберите способ поиска:', reply_markup=main_kb.data_type())
 
     else:
         await message.answer('Ошибка. Номер телефона должен состоять из цифр.')
@@ -126,6 +128,8 @@ async def p_input_doc(message: Message, state: FSMContext):
                 await message.answer('Выберите способ поиска:', reply_markup=main_kb.data_type())
             else:
                 await message.answer('Данные по вашему запросу в QTizim не найдены')
+                await asyncio.sleep(1)
+                await message.answer('Выберите способ поиска:', reply_markup=main_kb.data_type())
         else:
             await message.answer('Ошибка. Номер документа должен состоять из цифр.')
     else:
