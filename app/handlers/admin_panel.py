@@ -104,10 +104,11 @@ async def adm_send_text(message: Message, state: FSMContext):
         video = message.video
         caption = message.caption if message.caption else ''
         await users_mailing_media(video.file_id, caption, media_type='video')
-    text = message.text
-    await users_mailing(text)
-    await message.answer('Рассылка завершена.')
-    await state.clear()
+    else:
+        text = message.text
+        await users_mailing(text)
+        await message.answer('Рассылка завершена.')
+        await state.clear()
 
 @router.callback_query(F.data == 'adm_tarifs')
 async def p_get_tar(call: CallbackQuery):
