@@ -60,7 +60,7 @@ async def users_mailing(mailing_text: str):
 async def users_mailing_media(media_id: str, caption: str, media_type=None):
     async with AsyncSessionLocal() as session:
         users_list = await funcs.get_all_users(session)
-    for user in users_list:  # Здесь all_users — список пользователей, которым нужно отправить сообщение
+    for user in users_list:
         try:
             if media_type == 'photo':
                 await aiogram_bot.send_photo(
@@ -78,6 +78,7 @@ async def users_mailing_media(media_id: str, caption: str, media_type=None):
                 return
         except Exception as e:
             logger.error(f'Error while sending media {e}.')
+            continue
 
 
 @router.callback_query(F.data == 'admin_panel')
