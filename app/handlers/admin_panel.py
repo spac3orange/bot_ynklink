@@ -57,6 +57,29 @@ async def users_mailing(mailing_text: str):
             continue
 
 
+async def users_mailing_media(media_id: str, caption: str, media_type=None):
+    async with AsyncSessionLocal() as session:
+        users_list = await funcs.get_all_users(session)
+    for user in users_list:  # Здесь all_users — список пользователей, которым нужно отправить сообщение
+        try:
+            if media_type == 'photo':
+                await aiogram_bot.send_photo(
+                    user.id,
+                    media_id,
+                    caption=caption
+                )
+            elif media_type == 'video':
+                await aiogram_bot.send_video(
+                    user.id,
+                    media_id,
+                    caption=caption
+                )
+            else:
+                return
+        except Exception as e:
+            logger.error(f'Error while sending media {e}.')
+
+
 @router.callback_query(F.data == 'admin_panel')
 async def p_admp(call: CallbackQuery):
     await call.answer()
@@ -72,6 +95,14 @@ async def adm_input_text(call: CallbackQuery, state: FSMContext):
 
 @router.message(states.AdmSend.text)
 async def adm_send_text(message: Message, state: FSMContext):
+    if message.photo:
+        photo = message.photo[-1]
+        caption = message.caption if message.caption else ''
+        await users_mailing_media(photo.file_id, caption, media_type='photo')
+    elif message.video:
+        video = message.video
+        caption = message.caption if message.caption else ''
+        await users_mailing_media(video.file_id, caption, media_type='video')
     text = message.text
     await users_mailing(text)
     await message.answer('Рассылка завершена.')
