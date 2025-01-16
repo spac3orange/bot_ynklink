@@ -175,7 +175,7 @@ async def p_adm_users(call: CallbackQuery, page: int = 1):
         # Проверяем, есть ли ещё пользователи для отображения
         next_page = page + 1
         await call.message.answer(
-            "Далее",
+            "Следующая страница",
             reply_markup=main_kb.pagination(next_page)
         )
     else:
