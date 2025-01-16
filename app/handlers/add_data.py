@@ -1,3 +1,4 @@
+import asyncio
 
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.utils.media_group import MediaGroupBuilder
@@ -9,7 +10,7 @@ from app.crud import AsyncSessionLocal, funcs, prepare_jsonb_data
 from app.keyboards import main_kb
 from app.middlewares import album_middleware
 from app.states import states
-from app.core import aiogram_bot, logger
+from app.core import aiogram_bot, logger, config_aiogram
 from app.utils import inform_admins
 from app.filters import IsSub, IsBlocked
 from random import randint
@@ -25,6 +26,9 @@ media_folder = 'app/media'
 
 def format_phone_number(number: str) -> str:
     formatted_number = re.sub(r"[^\d+]", "", number)
+    if formatted_number.startswith('8'):
+        formatted_number = '+7' + formatted_number[1:]
+
     if formatted_number.startswith('+'):
         formatted_number = '+' + re.sub(r"[^\d]", "", formatted_number[1:])
     else:
@@ -283,12 +287,25 @@ async def p_edit_data(call: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == 'confirm_data', IsBlocked())
 async def p_conf_data(call: CallbackQuery, state: FSMContext):
+    uname = call.from_user.username
     await call.answer()
     sdata = await state.get_data()
     uid = call.from_user.id
     await state.clear()
     await call.message.answer('Спасибо! Данные будут отправлены администратору на проверку.')
     await send_data(sdata, uid)
+    await asyncio.sleep(1)
+
+    async with AsyncSessionLocal() as session:
+        user = await funcs.add_user(session, uid, uname)
+        user_sub = user.subscription if user.subscription != 'blocked' else None
+    if user_sub and not str(uid) in config_aiogram.admin_id:
+        await call.message.answer('Выберите действие: ', reply_markup=main_kb.start_btns(True))
+    elif str(uid) in config_aiogram.admin_id:
+        await call.message.answer('Выберите действие: ', reply_markup=main_kb.start_btns(False, admin=True))
+    else:
+        await call.message.answer('Выберите действие: ', reply_markup=main_kb.start_btns(False))
+    await call.message.answer('', reply_markup=main_kb.start_btns())
 
 
 

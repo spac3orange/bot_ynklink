@@ -150,11 +150,15 @@ async def p_edit_tar_4(message: Message, state: FSMContext):
 
 
 @router.callback_query(F.data == 'adm_users_panel')
-async def p_adm_users(call: CallbackQuery):
+async def p_adm_users(call: CallbackQuery, page: int = 1):
     await call.answer()
     async with AsyncSessionLocal() as session:
-        all_users = await funcs.get_all_users(session)
+        # Пагинация: выбираем пользователей с учетом страницы
+        offset = (page - 1) * 10  # Сдвиг для пагинации
+        all_users = await funcs.get_users_with_pagination(session, offset=offset, limit=10)
+
     if all_users:
+        # Отправляем информацию о пользователях
         for u in all_users:
             uid = u.id
             uname = u.name
@@ -162,13 +166,26 @@ async def p_adm_users(call: CallbackQuery):
             u_substart = u.sub_start_date
             u_subend = u.sub_end_date
             adm_message = (f'\n<b>TG ID:</b> {uid} '
-                           f'\n<b>Username:</b> @{uname}'
-                           f'\n<b>Подписка:</b> {u_sub}'
-                           f'\n<b>Начало подписки:</b> {u_substart}'
+                           f'\n<b>Username:</b> @{uname} '
+                           f'\n<b>Подписка:</b> {u_sub} '
+                           f'\n<b>Начало подписки:</b> {u_substart} '
                            f'\n<b>Конец подписки:</b> {u_subend}')
             await call.message.answer(adm_message, reply_markup=main_kb.adm_edit_user(uid), parse_mode='HTML')
+
+        # Проверяем, есть ли ещё пользователи для отображения
+        next_page = page + 1
+        await call.message.answer(
+            "Далее",
+            reply_markup=main_kb.pagination(next_page)
+        )
     else:
         await call.message.answer('Пользователи не найдены.')
+
+
+@router.callback_query(F.data.startswith('adm_users_panel_'))
+async def p_adm_users_next_page(call: CallbackQuery):
+    page = int(call.data.split('_')[-1])
+    await p_adm_users(call, page=page)
 
 
 @router.callback_query(F.data.startswith('adm_get_data_'))

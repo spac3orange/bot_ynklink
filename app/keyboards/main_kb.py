@@ -1,5 +1,11 @@
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardBuilder
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+def pagination(page: int):
+    kb_builder = InlineKeyboardBuilder()
+    kb_builder.button(text="Далее", callback_data=f"adm_users_panel_{page}")
+    kb_builder.adjust(1)
+    return kb_builder.as_markup(resize_keyboard=True)
 
 def start_btns(sub: bool = False, admin = False):
     kb_builder = InlineKeyboardBuilder()

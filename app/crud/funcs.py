@@ -576,3 +576,8 @@ async def update_tarif(session: AsyncSession,
         await session.rollback()
         print(f"Failed to update tarif with record_id {record_id}. Error: {e}")
         raise
+
+async def get_users_with_pagination(session: AsyncSession, offset: int, limit: int):
+    stmt = select(User).offset(offset).limit(limit)
+    result = await session.execute(stmt)
+    return result.scalars().all()

@@ -15,6 +15,9 @@ router = Router()
 
 def format_phone_number(number: str) -> str:
     formatted_number = re.sub(r"[^\d+]", "", number)
+    if formatted_number.startswith('8'):
+        formatted_number = '+7' + formatted_number[1:]
+
     if formatted_number.startswith('+'):
         formatted_number = '+' + re.sub(r"[^\d]", "", formatted_number[1:])
     else:
@@ -44,7 +47,7 @@ async def is_photo(file_path):
 async def send_data_message(message, extracted_data):
     if extracted_data:
         for d in extracted_data:
-            response_parts = []
+            response_parts = ['Найдена запись в QTizim:']
             if d.number and d.number not in ("-", "нет"):
                 response_parts.append(f'<b>Номер телефона:</b> {d.number}')
             if d.city and d.city not in ("-", "нет"):
@@ -61,7 +64,7 @@ async def send_data_message(message, extracted_data):
                 await message.answer(response_text, parse_mode='HTML')
                 await asyncio.sleep(1)
             else:
-                await message.answer("Данные не найдены.", parse_mode='HTML')
+                await message.answer("Данные по вашему запросу в QTizim не найдены", parse_mode='HTML')
 
 
 @router.callback_query(F.data == 'get_data', IsSub(), IsBlocked())
@@ -92,8 +95,10 @@ async def p_input_phone(message: Message, state: FSMContext):
             extracted_data = await funcs.get_user_data_by_number_or_document(session, number=formated_phone)
         if extracted_data:
             await send_data_message(message, extracted_data)
+            await asyncio.sleep(1)
+            await message.answer('Выберите способ поиска:', reply_markup=main_kb.data_type())
         else:
-            await message.answer('Данные не найдены.')
+            await message.answer('Данные по вашему запросу в QTizim не найдены')
 
     else:
         await message.answer('Ошибка. Номер телефона должен состоять из цифр.')
@@ -117,8 +122,10 @@ async def p_input_doc(message: Message, state: FSMContext):
                 extracted_data = await funcs.get_user_data_by_number_or_document(session, document=number)
             if extracted_data:
                 await send_data_message(message, extracted_data)
+                await asyncio.sleep(1)
+                await message.answer('Выберите способ поиска:', reply_markup=main_kb.data_type())
             else:
-                await message.answer('Данные не найдены.')
+                await message.answer('Данные по вашему запросу в QTizim не найдены')
         else:
             await message.answer('Ошибка. Номер документа должен состоять из цифр.')
     else:
