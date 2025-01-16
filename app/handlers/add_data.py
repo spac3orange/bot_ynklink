@@ -117,7 +117,7 @@ async def p_city(message: Message, state: FSMContext):
     city = message.text
     await state.update_data(city=city)
     await message.answer('Введите номер документа:'
-                         '\n**Не обязательно, для продолжения введите "Нет"')
+                         '\n*Не обязательно, для продолжения введите "Нет"')
     await state.set_state(states.AddData.document)
 
 @router.message(states.AddData.document)
