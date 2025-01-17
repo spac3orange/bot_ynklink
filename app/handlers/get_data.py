@@ -50,12 +50,12 @@ async def send_data_message(message, extracted_data):
             response_parts = ['Найдена запись в QTizim:']
             if d.number and d.number not in ("-", "нет"):
                 response_parts.append(f'<b>Номер телефона:</b> {d.number}')
-            if d.city and d.city not in ("-", "нет"):
-                response_parts.append(f'<b>Город:</b> {d.city}')
-            if d.document and d.document not in ("-", "нет"):
-                response_parts.append(f'<b>Номер документа:</b> {d.document}')
-            if d.name and d.name not in ("-", "нет"):
-                response_parts.append(f'<b>Фамилия и/или имя:</b> {d.name}')
+            # if d.city and d.city not in ("-", "нет"):
+            #     response_parts.append(f'<b>Город:</b> {d.city}')
+            # if d.document and d.document not in ("-", "нет"):
+            #     response_parts.append(f'<b>Номер документа:</b> {d.document}')
+            # if d.name and d.name not in ("-", "нет"):
+            #     response_parts.append(f'<b>Фамилия и/или имя:</b> {d.name}')
             if d.comment and d.comment not in ("-", "нет"):
                 response_parts.append(f'<b>Комментарий:</b> {d.comment}')
 

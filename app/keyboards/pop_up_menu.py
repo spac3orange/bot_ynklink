@@ -19,7 +19,7 @@ async def set_commands_menu(bot):
         BotCommand(command='/payment',
                    description='Описание процедуры оплаты'),
         BotCommand(command='/support',
-                   description='Тех. Поддержка')
+                   description='Техническая Поддержка')
     ]
 
     await bot.set_my_commands(main_menu_commands)

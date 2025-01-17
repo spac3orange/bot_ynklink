@@ -58,4 +58,4 @@ async def process_paymentinfo(message: Message, state: FSMContext):
 @router.message(Command(commands='support'))
 async def process_support(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer('<b>Тех. Поддержка:</b> @Qtizim', parse_mode='HTML')
+    await message.answer('<b>Техническая Поддержка:</b> @Qtizim', parse_mode='HTML')
