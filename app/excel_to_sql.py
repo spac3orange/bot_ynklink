@@ -40,6 +40,6 @@ async def import_excel_to_db(file_path: str):
 
 if __name__ == '__main__':
 
-    excel_file = "template.xlsx"
+    excel_file = "app/template.xlsx"
 
     asyncio.run(import_excel_to_db(excel_file))
