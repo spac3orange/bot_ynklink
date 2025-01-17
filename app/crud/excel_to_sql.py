@@ -1,6 +1,8 @@
 import pandas as pd
 from app.crud.models import UserData
 from app.crud import AsyncSessionLocal
+import asyncio
+
 
 async def import_excel_to_db(file_path: str):
     try:
@@ -37,8 +39,7 @@ async def import_excel_to_db(file_path: str):
 
 
 if __name__ == '__main__':
-    import asyncio
 
-    excel_file = "template.xlsx"
+    excel_file = "../template.xlsx"
 
     asyncio.run(import_excel_to_db(excel_file))
