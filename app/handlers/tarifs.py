@@ -77,6 +77,7 @@ async def tar_choose(call: CallbackQuery):
 
 @router.callback_query(F.data.startswith('buy_tar_'), IsBlocked())
 async def process_buy(call: CallbackQuery):
+    uid = call.from_user.id
     await call.answer()
     tar_name = call.data.split('_')[-1]
     async with AsyncSessionLocal() as session:
@@ -86,15 +87,26 @@ async def process_buy(call: CallbackQuery):
                   'quart': sorted_tarifs[1].price,
                   'year': sorted_tarifs[2].price,
                   'sale': sorted_tarifs[3].price}
-    pid, ppage = await create_payment_page(tarif_dict[tar_name])
-    if ppage:
-        link = f'<a href="{ppage}">Freedom Pay</a>'
-        await call.message.answer(f'Ссылка для оплаты: {link}'
-                                  f'\n\nПосле оплаты, пожалуйста нажмите кнопку ниже для проверки статуса платежа.'
-                                  f' Когда платеж будет обработан, вы будете перенаправлены на главную страницу.',
-                                  reply_markup=main_kb.check_payment(pid, tar_name), parse_mode='HTML')
+    if tar_name == 'sale' and tarif_dict[tar_name] == 0:
+        async with AsyncSessionLocal() as session:
+            user_data = await funcs.get_user(session, int(uid))
+            sub_end_date = user_data.sub_end_date
+            sub_start, sub_end = await process_subscription(sub_end_date, tar_name)
+            subscription = await funcs.update_subscription(session, uid, tar_name, sub_start, sub_end)
+        if subscription:
+            await call.message.answer('Добро пожаловать в QTizim!', reply_markup=main_kb.start_btns(True))
+        else:
+            await call.message.answer('Ошибка при обновлении данных. Пожалуйста, обратитесь в Тех. Поддержку.')
     else:
-        await call.message.answer('Ошибка при создании ссылки на оплату. Пожалуйста, обратитесь в Тех. Поддержку.')
+        pid, ppage = await create_payment_page(tarif_dict[tar_name])
+        if ppage:
+            link = f'<a href="{ppage}">Freedom Pay</a>'
+            await call.message.answer(f'Ссылка для оплаты: {link}'
+                                      f'\n\nПосле оплаты, пожалуйста нажмите кнопку ниже для проверки статуса платежа.'
+                                      f' Когда платеж будет обработан, вы будете перенаправлены на главную страницу.',
+                                      reply_markup=main_kb.check_payment(pid, tar_name), parse_mode='HTML')
+        else:
+            await call.message.answer('Ошибка при создании ссылки на оплату. Пожалуйста, обратитесь в Тех. Поддержку.')
 
 
 @router.callback_query(F.data.startswith('get_pstatus'), IsBlocked())
